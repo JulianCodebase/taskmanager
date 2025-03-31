@@ -6,37 +6,32 @@ pipeline {
     }
 
     stages {
-        stage('Clone Code') {
+        stage('Checkout') {
             steps {
-                echo "Manually cloning repo..."
-                sh 'git clone https://github.com/JulianRuicheng/taskmanager.git .'
+                checkout scm
             }
         }
 
         stage('Build with Maven') {
             steps {
-                echo "Building the Spring Boot project..."
                 sh 'mvn clean package -DskipTests'
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                echo "Building Docker image..."
                 sh "docker build -t ${DOCKER_IMAGE}:latest ."
             }
         }
 
         stage('Stop and Remove Old Container') {
             steps {
-                echo "Stopping old container if exists..."
                 sh "docker rm -f ${DOCKER_IMAGE} || true"
             }
         }
 
         stage('Run New Container') {
             steps {
-                echo "Running new Docker container..."
                 sh """
                 docker run -d --name ${DOCKER_IMAGE} \\
                     --network=taskmanager_task-net \\
