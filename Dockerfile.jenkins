@@ -1,0 +1,9 @@
+FROM jenkins/jenkins:lts-jdk17
+
+USER root
+
+# Install Maven and Docker CLI
+RUN apt-get update && apt-get install -y maven docker.io
+
+# 💥 DO NOT switch back to jenkins user
+# USER jenkins

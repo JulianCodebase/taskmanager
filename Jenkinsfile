@@ -2,15 +2,14 @@ pipeline {
     agent any
 
     environment {
-        // Change this if you're using a custom Docker network or ports
         DOCKER_IMAGE = "springboot-taskmanager"
     }
 
     stages {
         stage('Clone Code') {
             steps {
-                echo "Checking out source code..."
-                checkout scm
+                echo "Manually cloning repo..."
+                sh 'git clone https://github.com/JulianRuicheng/taskmanager.git .'
             }
         }
 
