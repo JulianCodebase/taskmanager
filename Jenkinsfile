@@ -14,6 +14,13 @@ pipeline {
             }
         }
 
+        stage('Run Unit Tests') {
+            steps {
+                echo "Running test..."
+                sh 'mvn test'
+            }
+        }
+
         stage('Build and Deploy with Docker Compose') {
             steps {
                 echo "Stopping old containers..."
