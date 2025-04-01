@@ -2,45 +2,25 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = "springboot-taskmanager"
+        COMPOSE_PROJECT_NAME = "taskmanager"  // Optional: keeps volumes/networks isolated
     }
 
     stages {
-        stage('Checkout') {
+        stage('Checkout Code') {
             steps {
+                echo "Cloning repo..."
+                // This clones the repo automatically from the configured job's SCM
                 checkout scm
             }
         }
 
-        stage('Build with Maven') {
+        stage('Build and Deploy with Docker Compose') {
             steps {
-                sh 'mvn clean package -DskipTests'
-            }
-        }
+                echo "Stopping old containers..."
+                sh 'docker-compose down'
 
-        stage('Build Docker Image') {
-            steps {
-                sh "docker build -t ${DOCKER_IMAGE}:latest ."
-            }
-        }
-
-        stage('Stop and Remove Old Container') {
-            steps {
-                sh "docker rm -f ${DOCKER_IMAGE} || true"
-            }
-        }
-
-        stage('Run New Container') {
-            steps {
-                sh """
-                docker run -d --name ${DOCKER_IMAGE} \\
-                    --network=taskmanager_task-net \\
-                    -e SPRING_DATASOURCE_URL=jdbc:mysql://mysql:3306/taskdb \\
-                    -e SPRING_DATASOURCE_USERNAME=root \\
-                    -e SPRING_DATASOURCE_PASSWORD=root \\
-                    -p 8080:8080 \\
-                    ${DOCKER_IMAGE}:latest
-                """
+                echo "Building and starting containers..."
+                sh 'docker-compose up -d --build'
             }
         }
     }
