@@ -26,13 +26,18 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException exception) {
-        Map<String, String> errors = new HashMap<>();
-
+    public ResponseEntity<CustomErrorResponse> handleValidationExceptions(MethodArgumentNotValidException exception) {
+        Map<String, String> fieldErrors = new HashMap<>();
         for (FieldError error : exception.getFieldErrors()) {
-            errors.put(error.getField(), error.getDefaultMessage());
+            fieldErrors.put(error.getField(), error.getDefaultMessage());
         }
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
+        CustomErrorResponse errorResponse = new CustomErrorResponse(
+                HttpStatus.BAD_REQUEST.value(),
+                "Validation failed",
+                fieldErrors
+        );
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 }
