@@ -3,6 +3,7 @@ package de.personal.taskmanager.dto;
 
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
@@ -15,8 +16,19 @@ public class TaskRequest {
     @Size(max = 500, message = "Description must be at most 500 characters")
     private String description;
 
+    @NotNull(message = "Due date is required")
     @FutureOrPresent(message = "Due date cannot be in the past")
     private LocalDate dueDate;
+
+    private Boolean done;
+
+    public boolean isDone() {
+        return done;
+    }
+
+    public void setDone(boolean done) {
+        this.done = done;
+    }
 
     public String getTitle() {
         return title;

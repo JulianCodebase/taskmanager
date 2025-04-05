@@ -1,16 +1,16 @@
 package de.personal.taskmanager.service;
 
-import de.personal.taskmanager.model.Task;
-
-import java.util.List;
-import java.util.Optional;
+import de.personal.taskmanager.dto.TaskRequest;
+import de.personal.taskmanager.dto.TaskResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface TaskService {
-    Task createTask(Task task);
-    Task updateTask(Long id, Task newTask);
-    Optional<Task> findTaskById(Long id);
-    List<Task> getAllTasks();
+    TaskResponse createTask(TaskRequest taskRequest);
+    TaskResponse updateTask(Long id, TaskRequest taskRequest);
+    TaskResponse findTaskByIdOrThrow(Long id);
+    Page<TaskResponse> getAllTasks(Boolean done, Pageable pageable);
     void deleteTask(Long id);
-    Task markTaskAsDone(Long id);
+    TaskResponse markTaskAsDone(Long id);
 
 }

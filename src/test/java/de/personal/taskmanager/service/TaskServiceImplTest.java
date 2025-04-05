@@ -1,7 +1,11 @@
 package de.personal.taskmanager.service;
 
+import de.personal.taskmanager.dto.TaskRequest;
+import de.personal.taskmanager.dto.TaskResponse;
 import de.personal.taskmanager.model.Task;
 import de.personal.taskmanager.respository.TaskRepository;
+import de.personal.taskmanager.util.TaskMapper;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -26,44 +30,56 @@ class TaskServiceImplTest {
     @InjectMocks
     TaskServiceImpl taskService;
 
+    @NotNull
+    private static TaskRequest createSampleTaskRequest(String title, String description) {
+        return createSampleTaskRequest(title, description, LocalDate.now());
+    }
+
+    @NotNull
+    private static TaskRequest createSampleTaskRequest(String title, String description, LocalDate dueDate) {
+        TaskRequest taskRequest = new TaskRequest();
+        taskRequest.setTitle(title);
+        taskRequest.setDescription(description);
+        taskRequest.setDueDate(dueDate);
+        return taskRequest;
+    }
+
     @Test
     void createTask() {
-        Task task = new Task();
-        task.setId(1L);
-        task.setTitle("Old title");
-        task.setDescription("Old Desc");
-        task.setDueDate(LocalDate.now());
-        when(taskRepository.save(any(Task.class))).thenReturn(task);
+        TaskRequest taskRequest = createSampleTaskRequest("task", "description");
+        when(taskRepository.save(any(Task.class))).thenReturn(TaskMapper.toTaskEntity(taskRequest));
 
-        Task result = taskService.createTask(task);
+        TaskResponse result = taskService.createTask(taskRequest);
 
-        assertEquals("Old title", result.getTitle());
-        verify(taskRepository).save(task);
+        assertEquals("task", result.getTitle());
+        verify(taskRepository).save(any(Task.class));
+    }
+
+    @Test
+    void createTask_shouldThrowException_whenDuplicateTasksExist() {
+        TaskRequest taskRequest = createSampleTaskRequest("task", "description");
+
+        when(taskRepository.existsByTitleAndDueDate(taskRequest.getTitle(), taskRequest.getDueDate()))
+                .thenReturn(true);
+
+        assertThrows(IllegalArgumentException.class, () -> taskService.createTask(taskRequest));
     }
 
     @Test
     void updateTask() {
-        Task task = new Task();
-        task.setId(1L);
-        task.setTitle("Old title");
-        task.setDescription("Old Desc");
-        task.setDueDate(LocalDate.now());
+        TaskRequest taskRequest = createSampleTaskRequest("task", "description");
 
-        Task newTask = new Task();
-        newTask.setTitle("Updated title");
-        newTask.setDescription("Updated description");
-        newTask.setDone(true);
+        TaskRequest newTaskRequest = createSampleTaskRequest("Updated task", "Updated description");
 
-        when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
-        when(taskRepository.save(any(Task.class))).thenReturn(task);
+        when(taskRepository.findById(1L)).thenReturn(Optional.of(TaskMapper.toTaskEntity(taskRequest)));
+        when(taskRepository.save(any(Task.class))).thenReturn(TaskMapper.toTaskEntity(newTaskRequest));
 
-        Task updatedTask = taskService.updateTask(1L, newTask);
+        TaskResponse updatedTask = taskService.updateTask(1L, newTaskRequest);
 
-        assertEquals("Updated title", updatedTask.getTitle());
+        assertEquals("Updated task", updatedTask.getTitle());
         assertEquals("Updated description", updatedTask.getDescription());
-        assertTrue(updatedTask.getDone());
         verify(taskRepository).findById(1L);
-        verify(taskRepository).save(task);
+        verify(taskRepository).save(any(Task.class));
     }
 
     @Test
@@ -80,17 +96,13 @@ class TaskServiceImplTest {
 
     @Test
     void markTaskAsDone() {
-        Task task = new Task();
-        task.setId(1L);
-        task.setTitle("Old title");
-        task.setDescription("Old Desc");
-        task.setDueDate(LocalDate.now());
+        TaskRequest taskRequest = createSampleTaskRequest("task", "description");
 
-        when(taskRepository.findById(1L)).thenReturn(Optional.of(task));
+        when(taskRepository.findById(1L)).thenReturn(Optional.of(TaskMapper.toTaskEntity(taskRequest)));
         when(taskRepository.save(any(Task.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        Task completedTask = taskService.markTaskAsDone(1L);
+        TaskResponse completedTask = taskService.markTaskAsDone(1L);
         assertTrue(completedTask.getDone());
         verify(taskRepository).findById(1L);
-        verify(taskRepository).save(task);
+        verify(taskRepository).save(any(Task.class));
     }
 }

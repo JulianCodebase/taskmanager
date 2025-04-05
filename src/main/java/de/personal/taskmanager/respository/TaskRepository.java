@@ -1,9 +1,17 @@
 package de.personal.taskmanager.respository;
 
 import de.personal.taskmanager.model.Task;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+
 @Repository
 public interface TaskRepository extends JpaRepository<Task, Long> {
+    boolean existsByTitleAndDueDate(String title, LocalDate dueDate);
+
+    // Find all completed tasks
+    Page<Task> findByDone(Boolean done, Pageable pageable);
 }

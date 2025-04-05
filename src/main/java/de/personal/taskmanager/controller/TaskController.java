@@ -2,17 +2,14 @@ package de.personal.taskmanager.controller;
 
 import de.personal.taskmanager.dto.TaskRequest;
 import de.personal.taskmanager.dto.TaskResponse;
-import de.personal.taskmanager.exception.TaskNotFoundException;
-import de.personal.taskmanager.model.Task;
 import de.personal.taskmanager.service.TaskService;
-import de.personal.taskmanager.util.TaskMapper;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Optional;
 
 @RestController
 @RequestMapping("/tasks")
@@ -25,36 +22,35 @@ public class TaskController {
 
     @PostMapping("/create")
     public ResponseEntity<TaskResponse> createTask(@Valid @RequestBody TaskRequest taskRequest) {
-        Task task = TaskMapper.toTaskEntity(taskRequest);
-        Task saved = taskService.createTask(task);
-        return ResponseEntity.status(HttpStatus.CREATED).body(TaskMapper.toTaskResponse(saved));
+        return ResponseEntity.status(HttpStatus.CREATED).body(taskService.createTask(taskRequest));
     }
 
     @GetMapping
-    public ResponseEntity<List<TaskResponse>> getAllTasks() {
-        List<Task> tasks = taskService.getAllTasks();
-        List<TaskResponse> taskResponses = tasks.stream().map(TaskMapper::toTaskResponse).toList();
-        return ResponseEntity.ok(taskResponses);
+    public ResponseEntity<Page<TaskResponse>> getAllTasks(
+            @RequestParam(required = false) Boolean done,
+            @PageableDefault(size = 10, sort = "dueDate") Pageable pageable) {
+        return ResponseEntity.ok(taskService.getAllTasks(done, pageable));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<TaskResponse> getSingleTask(@PathVariable Long id) {
-        Task task = taskService.findTaskById(id)
-                .orElseThrow(() -> new TaskNotFoundException(id));
-
-        return ResponseEntity.ok(TaskMapper.toTaskResponse(task));
+        return ResponseEntity.ok(taskService.findTaskByIdOrThrow(id));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<TaskResponse> updateTask(@PathVariable Long id,
                                                    @Valid @RequestBody TaskRequest taskRequest) {
-        Task updatedTask = taskService.updateTask(id, TaskMapper.toTaskEntity(taskRequest));
-        return ResponseEntity.ok(TaskMapper.toTaskResponse(updatedTask));
+        return ResponseEntity.ok(taskService.updateTask(id, taskRequest));
     }
 
-    @PatchMapping("/{id}/done")
+    @PatchMapping("/{id}")
     public ResponseEntity<TaskResponse> markTaskAsDone(@PathVariable Long id) {
-        Task completedTask = taskService.markTaskAsDone(id);
-        return ResponseEntity.ok(TaskMapper.toTaskResponse(completedTask));
+        return ResponseEntity.ok(taskService.markTaskAsDone(id));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
+        taskService.deleteTask(id);
+        return ResponseEntity.noContent().build();
     }
 }

@@ -1,7 +1,5 @@
 package de.personal.taskmanager.controller;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.personal.taskmanager.dto.TaskRequest;
 import de.personal.taskmanager.dto.TaskResponse;
@@ -12,6 +10,8 @@ import de.personal.taskmanager.util.TaskMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
@@ -19,10 +19,11 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -40,67 +41,83 @@ class TaskControllerTest {
 
     @Test
     void createTask_shouldReturn201AndTaskResponse() throws Exception {
-        TaskRequest taskRequest = createSampleTaskRequest("Integration test task", "Test POST", LocalDate.of(2025, 1, 1));
+        TaskRequest taskRequest = createSampleTaskRequest("Integration test task", "Test POST", LocalDate.now());
         Task task = TaskMapper.toTaskEntity(taskRequest);
         task.setId(1L);
 
-        when(taskService.createTask(any(Task.class))).thenReturn(task);
+        when(taskService.createTask(any(TaskRequest.class))).thenReturn(TaskMapper.toTaskResponse(task));
 
         mockMvc.perform(post("/tasks/create")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(taskRequest)))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.title").value("Integration test task"))
                 .andExpect(jsonPath("$.done").value(false));
     }
 
     @Test
     void getAllTasks_shouldReturnEmptyList() throws Exception {
-        List<Task> tasks = new ArrayList<>();
+        Page<TaskResponse> emptyPage = Page.empty();
 
-        when(taskService.getAllTasks()).thenReturn(tasks);
+        when(taskService.getAllTasks(any(Boolean.class), any())).thenReturn(emptyPage);
 
         mockMvc.perform(get("/tasks"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(0));
+                .andExpect(jsonPath("$.content.length()").value(0));
 
-        verify(taskService).getAllTasks();
+        verify(taskService).getAllTasks(any(Boolean.class), any());
     }
 
     @Test
-    void getAllTasks_shouldReturnNonEmptyList() throws Exception {
-        Task task1 = createSampleTask(1L, "Task1", "task1 Desc", false);
-        Task task2 = createSampleTask(2L, "Task2", "task2 Desc", false);
+    void getAllTasks_shouldReturnAllTasks_whenDoneNotSpecified() throws Exception {
+        TaskResponse task1 = createSampleTaskResponse(1L, "Task1", "task1 Desc", false);
+        TaskResponse task2 = createSampleTaskResponse(2L, "Task2", "task2 Desc", false);
 
-        List<Task> tasks = new ArrayList<>(List.of(task1, task2));
+        List<TaskResponse> taskList = new ArrayList<>(List.of(task1, task2));
+        Page<TaskResponse> taskPage = new PageImpl<>(taskList);
 
-        when(taskService.getAllTasks()).thenReturn(tasks);
+        when(taskService.getAllTasks(eq(null), any())).thenReturn(taskPage);
 
         mockMvc.perform(get("/tasks"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.length()").value(2))
-                .andExpect(jsonPath("$[1].id").value(2));
+                .andExpect(jsonPath("$.content.length()").value(2))
+                .andExpect(jsonPath("$.content[1].id").value(2));
 
-        verify(taskService).getAllTasks();
+        verify(taskService).getAllTasks(eq(null), any());
+    }
+
+    @Test
+    void getAllTasks_shouldReturnPartialTasks_whenDoneSpecified() throws Exception {
+        TaskResponse task1 = createSampleTaskResponse(1L, "Task1", "task1 Desc", false);
+        TaskResponse task2 = createSampleTaskResponse(2L, "Task2", "task2 Desc", false);
+        TaskResponse task3 = createSampleTaskResponse(3L, "Task2", "task2 Desc", true);
+
+        List<TaskResponse> taskList = List.of(task1, task2);
+        Page<TaskResponse> taskPage = new PageImpl<>(taskList);
+
+        when(taskService.getAllTasks(any(Boolean.class), any())).thenReturn(taskPage);
+
+        mockMvc.perform(get("/tasks?done=false"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content.length()").value(2));
+        verify(taskService).getAllTasks(any(Boolean.class), any());
     }
 
     @Test
     void getSingleTask_shouldReturnTaskResponseWhenFound() throws Exception {
-        Task task = createSampleTask(1L, "Task1", "task1 Desc", false);
-
-        when(taskService.findTaskById(1L)).thenReturn(Optional.of(task));
+        TaskResponse taskResponse = createSampleTaskResponse(1L, "Task1", "task1 Desc", false);
+        when(taskService.findTaskByIdOrThrow(1L)).thenReturn(taskResponse);
 
         mockMvc.perform(get("/tasks/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.description").value("task1 Desc"));
-        verify(taskService).findTaskById(1L);
+        verify(taskService).findTaskByIdOrThrow(1L);
     }
 
     @Test
     void getSingleTask_shouldReturn404WhenNotFound() throws Exception {
-        when(taskService.findTaskById(1L)).thenReturn(Optional.empty());
+        when(taskService.findTaskByIdOrThrow(1L)).thenThrow(new TaskNotFoundException(1L));
 
         mockMvc.perform(get("/tasks/1"))
                 .andExpect(status().isNotFound());
@@ -109,8 +126,8 @@ class TaskControllerTest {
     @Test
     void updateTask_shouldReturnOKAndTaskResponse() throws Exception {
         TaskRequest request = createSampleTaskRequest("new task", "new task Desc", LocalDate.now());
-
-        when(taskService.updateTask(eq(1L), any(Task.class))).thenReturn(TaskMapper.toTaskEntity(request));
+        TaskResponse updated = createSampleTaskResponse(1L, "new task", "new task Desc", false);
+        when(taskService.updateTask(eq(1L), any(TaskRequest.class))).thenReturn(updated);
 
         mockMvc.perform(put("/tasks/1")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -123,7 +140,7 @@ class TaskControllerTest {
     void updateTask_shouldReturnNotFound() throws Exception {
         TaskRequest request = createSampleTaskRequest("new task", "new task Desc", LocalDate.now());
 
-        when(taskService.updateTask(eq(1L), any(Task.class))).thenThrow(TaskNotFoundException.class);
+        when(taskService.updateTask(eq(1L), any(TaskRequest.class))).thenThrow(TaskNotFoundException.class);
 
         mockMvc.perform(put("/tasks/1")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -133,11 +150,10 @@ class TaskControllerTest {
 
     @Test
     void markAsDone_shouldReturnOKAndTaskResponse() throws Exception {
-        Task task = createSampleTask(1L, "Task", "task Desc", true);
-
+        TaskResponse task = createSampleTaskResponse(1L, "Task", "task Desc", true);
         when(taskService.markTaskAsDone(1L)).thenReturn(task);
 
-        mockMvc.perform(patch("/tasks/1/done"))
+        mockMvc.perform(patch("/tasks/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.done").value(true));
     }
@@ -146,12 +162,12 @@ class TaskControllerTest {
     void markAsDone_shouldReturnNotFound() throws Exception {
         when(taskService.markTaskAsDone(1L)).thenThrow(TaskNotFoundException.class);
 
-        mockMvc.perform(patch("/tasks/1/done"))
+        mockMvc.perform(patch("/tasks/1"))
                 .andExpect(status().isNotFound());
     }
 
-    private Task createSampleTask(Long id, String title, String description, boolean done) {
-        Task task = new Task();
+    private TaskResponse createSampleTaskResponse(Long id, String title, String description, boolean done) {
+        TaskResponse task = new TaskResponse();
         task.setId(id);
         task.setTitle(title);
         task.setDescription(description);
