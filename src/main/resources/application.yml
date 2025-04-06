@@ -1,3 +1,5 @@
+server:
+  port: 8080
 spring:
   application:
     name: TaskManager
@@ -7,12 +9,12 @@ spring:
     password: root
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: true
     database-platform: org.hibernate.dialect.MySQL8Dialect
-  server:
-    port: 8080
 
 logging:
   level:
-    web: debug
+    root: info
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{0}: %msg%n"

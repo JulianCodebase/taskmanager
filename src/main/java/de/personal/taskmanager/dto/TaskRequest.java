@@ -20,7 +20,7 @@ public class TaskRequest {
     @FutureOrPresent(message = "Due date cannot be in the past")
     private LocalDate dueDate;
 
-    private Boolean done;
+    private Boolean done = false;
 
     public boolean isDone() {
         return done;

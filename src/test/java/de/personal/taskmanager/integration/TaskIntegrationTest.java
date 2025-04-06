@@ -2,6 +2,7 @@ package de.personal.taskmanager.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.personal.taskmanager.dto.TaskRequest;
+import de.personal.taskmanager.dto.TaskResponse;
 import de.personal.taskmanager.model.Task;
 import de.personal.taskmanager.respository.TaskRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -157,6 +158,16 @@ public class TaskIntegrationTest {
         mockMvc.perform(delete("/tasks/" + task.getId()))
                 .andExpect(status().isNoContent());
         assertEquals(0, taskRepository.count());
+    }
+
+    @Test
+    void shouldPublishEven_whenMarkTaskAsDone() throws Exception {
+        Task task = taskRepository.save(createSampleTask("task", "desc"));
+
+        mockMvc.perform(patch("/tasks/" + task.getId()))
+                .andExpect(status().isOk());
+
+        Thread.sleep(2000); // simulate async wait.
     }
 
     private Task createSampleTask(String title, String description) {

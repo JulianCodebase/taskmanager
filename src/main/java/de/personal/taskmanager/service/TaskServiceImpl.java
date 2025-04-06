@@ -2,10 +2,12 @@ package de.personal.taskmanager.service;
 
 import de.personal.taskmanager.dto.TaskRequest;
 import de.personal.taskmanager.dto.TaskResponse;
+import de.personal.taskmanager.event.TaskCompletedEvent;
 import de.personal.taskmanager.exception.TaskNotFoundException;
 import de.personal.taskmanager.model.Task;
 import de.personal.taskmanager.respository.TaskRepository;
 import de.personal.taskmanager.util.TaskMapper;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -14,8 +16,11 @@ import org.springframework.stereotype.Service;
 public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
 
-    public TaskServiceImpl(TaskRepository taskRepository) {
+    private final ApplicationEventPublisher eventPublisher;
+
+    public TaskServiceImpl(TaskRepository taskRepository, ApplicationEventPublisher eventPublisher) {
         this.taskRepository = taskRepository;
+        this.eventPublisher = eventPublisher;
     }
 
     // create a new task, and prevent duplicate titles for tasks on the same due date
@@ -74,6 +79,8 @@ public class TaskServiceImpl implements TaskService {
         );
 
         task.setDone(true);
-        return TaskMapper.toTaskResponse(taskRepository.save(task));
+        Task savedTask = taskRepository.save(task);
+        eventPublisher.publishEvent(new TaskCompletedEvent(this, savedTask.getId()));
+        return TaskMapper.toTaskResponse(savedTask);
     }
 }
