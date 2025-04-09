@@ -11,5 +11,5 @@ RUN apt-get update && \
 # (Optional) verify it's installed
 RUN docker-compose --version
 
-# You can switch back to jenkins user if needed
+# You can switch back to jenkins appUser if needed
 # USER jenkins

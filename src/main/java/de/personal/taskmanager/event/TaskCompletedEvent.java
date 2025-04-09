@@ -3,6 +3,7 @@ package de.personal.taskmanager.event;
 import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
 
+@Getter
 public class TaskCompletedEvent extends ApplicationEvent {
     private final Long taskId;
 
@@ -11,7 +12,4 @@ public class TaskCompletedEvent extends ApplicationEvent {
         this.taskId = taskId;
     }
 
-    public Long getTaskId() {
-        return taskId;
-    }
 }
