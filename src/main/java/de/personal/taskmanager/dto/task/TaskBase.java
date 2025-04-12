@@ -1,5 +1,4 @@
-package de.personal.taskmanager.dto;
-
+package de.personal.taskmanager.dto.task;
 
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotBlank;
@@ -9,10 +8,10 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
-@Setter
-@Getter
-public class TaskRequest {
 
+@Getter
+@Setter
+public class TaskBase {
     @NotBlank(message = "Title is mandatory")
     @Size(max = 100, message = "Title must be at most 100 characters")
     private String title;
@@ -23,6 +22,4 @@ public class TaskRequest {
     @NotNull(message = "Due date is required")
     @FutureOrPresent(message = "Due date cannot be in the past")
     private LocalDate dueDate;
-
-    private Boolean done = false;
 }

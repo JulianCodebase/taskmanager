@@ -9,15 +9,15 @@ import java.util.Map;
 @Getter
 @Setter
 public class CustomErrorResponse {
-    private LocalDateTime timestamp;
     private int status;
     private String message;
     private Map<String, String> errors;
+    private LocalDateTime timestamp;
 
     public CustomErrorResponse(int status, String message, Map<String, String> errors) {
-        this.timestamp = LocalDateTime.now();
         this.status = status;
         this.message = message;
         this.errors = errors;
+        this.timestamp = LocalDateTime.now();
     }
 }

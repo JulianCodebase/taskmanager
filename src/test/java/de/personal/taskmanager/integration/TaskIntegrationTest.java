@@ -1,8 +1,7 @@
 package de.personal.taskmanager.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.personal.taskmanager.dto.TaskRequest;
-import de.personal.taskmanager.dto.TaskResponse;
+import de.personal.taskmanager.dto.task.TaskRequest;
 import de.personal.taskmanager.model.Task;
 import de.personal.taskmanager.respository.TaskRepository;
 import org.junit.jupiter.api.BeforeEach;

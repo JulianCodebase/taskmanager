@@ -1,11 +1,13 @@
-package de.personal.taskmanager.service;
+package de.personal.taskmanager.service.impl;
 
-import de.personal.taskmanager.dto.TaskRequest;
-import de.personal.taskmanager.dto.TaskResponse;
+import de.personal.taskmanager.annotation.AuditLog;
+import de.personal.taskmanager.dto.task.TaskRequest;
+import de.personal.taskmanager.dto.task.TaskResponse;
 import de.personal.taskmanager.event.TaskCompletedEvent;
 import de.personal.taskmanager.exception.TaskNotFoundException;
 import de.personal.taskmanager.model.Task;
 import de.personal.taskmanager.respository.TaskRepository;
+import de.personal.taskmanager.service.TaskService;
 import de.personal.taskmanager.util.TaskMapper;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
@@ -24,6 +26,7 @@ public class TaskServiceImpl implements TaskService {
     }
 
     // create a new task, and prevent duplicate titles for tasks on the same due date
+    @AuditLog
     @Override
     public TaskResponse createTask(TaskRequest taskRequest) {
         Task task = TaskMapper.toTaskEntity(taskRequest);
@@ -80,7 +83,7 @@ public class TaskServiceImpl implements TaskService {
 
         task.setDone(true);
         Task savedTask = taskRepository.save(task);
-        eventPublisher.publishEvent(new TaskCompletedEvent(this, savedTask.getId()));
+        eventPublisher.publishEvent(new TaskCompletedEvent(this, savedTask.getId())); // publish an event when the task is updated to database
         return TaskMapper.toTaskResponse(savedTask);
     }
 }

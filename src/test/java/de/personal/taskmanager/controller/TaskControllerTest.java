@@ -1,8 +1,8 @@
 package de.personal.taskmanager.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.personal.taskmanager.dto.TaskRequest;
-import de.personal.taskmanager.dto.TaskResponse;
+import de.personal.taskmanager.dto.task.TaskRequest;
+import de.personal.taskmanager.dto.task.TaskResponse;
 import de.personal.taskmanager.exception.TaskNotFoundException;
 import de.personal.taskmanager.model.Task;
 import de.personal.taskmanager.service.TaskService;

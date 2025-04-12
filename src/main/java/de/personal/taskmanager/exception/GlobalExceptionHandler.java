@@ -3,6 +3,7 @@ package de.personal.taskmanager.exception;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
@@ -22,6 +23,17 @@ import java.util.Map;
 @Slf4j
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(AuthorizationDeniedException.class)
+    public ResponseEntity<CustomErrorResponse> handleAuthorizationDeniedException(AuthorizationDeniedException exception) {
+        CustomErrorResponse errorResponse = new CustomErrorResponse(
+                HttpStatus.FORBIDDEN.value(),
+                "No permission to access this resource",
+                null
+        );
+
+        return new ResponseEntity<>(errorResponse, HttpStatus.FORBIDDEN);
+    }
+
     @ExceptionHandler(UsernameNotFoundException.class)
     public ResponseEntity<CustomErrorResponse> handleUsernameNotFound(UsernameNotFoundException exception) {
         CustomErrorResponse errorResponse = new CustomErrorResponse(
@@ -30,7 +42,7 @@ public class GlobalExceptionHandler {
                 null
         );
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
@@ -41,7 +53,7 @@ public class GlobalExceptionHandler {
                 null
         );
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
     /**
@@ -61,7 +73,7 @@ public class GlobalExceptionHandler {
                 fieldErrors
         );
 
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
     /**
@@ -75,7 +87,7 @@ public class GlobalExceptionHandler {
                 null
         );
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+        return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 
     /**
@@ -83,7 +95,7 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(Exception.class)
     public ResponseEntity<CustomErrorResponse> handleGenericExceptions(Exception exception) {
-        log.error("{}", exception.getMessage(), exception);
+        log.error("🛑 {}", exception.getMessage(), exception);
 
         CustomErrorResponse errorResponse = new CustomErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR.value(),
@@ -91,7 +103,7 @@ public class GlobalExceptionHandler {
                 null
         );
 
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     /**
@@ -106,6 +118,6 @@ public class GlobalExceptionHandler {
                 null
         );
 
-        return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(errorResponse);
+        return new ResponseEntity<>(errorResponse, HttpStatus.METHOD_NOT_ALLOWED);
     }
 }

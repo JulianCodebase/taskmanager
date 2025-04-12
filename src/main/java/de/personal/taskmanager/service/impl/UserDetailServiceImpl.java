@@ -1,4 +1,4 @@
-package de.personal.taskmanager.security;
+package de.personal.taskmanager.service.impl;
 
 import de.personal.taskmanager.model.AppUser;
 import de.personal.taskmanager.respository.UserRepository;
@@ -25,8 +25,6 @@ public class UserDetailServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        log.info("⚠️Loading user: {}", username);
-
         AppUser user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
 

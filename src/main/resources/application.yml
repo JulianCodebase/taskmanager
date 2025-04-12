@@ -14,9 +14,13 @@ spring:
     database-platform: org.hibernate.dialect.MySQL8Dialect
 
 logging:
-  level:
-    root: info
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{0}: %msg%n"
+  level:
+    root: debug
+    sun.rmi: info # suppress RMI-related debug info
+    rmi: info
+    javax.management.remote.rmi: info
+    com.zaxxer.hikari: info
 
 app-key: inNFm5S1dyyYrzN27ji319nn12d12fA2f2v1qTg34fa34wc1dd221w2b122vk2w1jxTyn22ct2pgw7afVJ===

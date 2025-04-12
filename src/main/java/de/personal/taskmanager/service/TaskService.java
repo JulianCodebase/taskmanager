@@ -1,7 +1,7 @@
 package de.personal.taskmanager.service;
 
-import de.personal.taskmanager.dto.TaskRequest;
-import de.personal.taskmanager.dto.TaskResponse;
+import de.personal.taskmanager.dto.task.TaskRequest;
+import de.personal.taskmanager.dto.task.TaskResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

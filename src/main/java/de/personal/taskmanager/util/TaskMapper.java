@@ -1,7 +1,7 @@
 package de.personal.taskmanager.util;
 
-import de.personal.taskmanager.dto.TaskRequest;
-import de.personal.taskmanager.dto.TaskResponse;
+import de.personal.taskmanager.dto.task.TaskRequest;
+import de.personal.taskmanager.dto.task.TaskResponse;
 import de.personal.taskmanager.model.Task;
 
 public class TaskMapper {

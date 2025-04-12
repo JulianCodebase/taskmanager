@@ -1,31 +1,36 @@
 package de.personal.taskmanager.controller;
 
-import de.personal.taskmanager.dto.AuthRequest;
-import de.personal.taskmanager.security.JwtUtil;
+import de.personal.taskmanager.annotation.AuditLog;
+import de.personal.taskmanager.dto.auth.AuthRegisterRequest;
+import de.personal.taskmanager.dto.auth.AuthRequest;
+import de.personal.taskmanager.dto.auth.AuthResponse;
+import de.personal.taskmanager.service.AuthService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+@Slf4j
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
 public class AuthController {
-    private final AuthenticationManager authenticationManager;
-    private final JwtUtil jwtUtil;
+    private final AuthService authService;
 
+    @AuditLog(desc = "Trying to login")
     @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody AuthRequest authRequest) {
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        authRequest.getUsername(),
-                        authRequest.getPassword()));
+    public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest authRequest) {
+        return ResponseEntity.ok(authService.login(authRequest));
+    }
 
-        String token = jwtUtil.generateToken(authRequest.getUsername());
-        return ResponseEntity.ok(token);
+    @AuditLog(desc = "Trying to register")
+    @PostMapping("/register")
+    public ResponseEntity<AuthResponse> register(@RequestBody @Valid AuthRegisterRequest registerRequest) {
+        return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(registerRequest));
     }
 }

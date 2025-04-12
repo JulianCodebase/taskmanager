@@ -4,14 +4,17 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
+import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -20,16 +23,26 @@ import java.io.IOException;
  * Intercepts requests and sets authentication context if token is valid.
  */
 @Component
+@Slf4j
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
 
-    @Qualifier("userDetailServiceImpl")
+    @Qualifier("userDetailServiceImpl") // To avoid ambiguity when injecting this dependency
     private final UserDetailsService userDetailsService;
+
+    private final AntPathMatcher antPathMatcher = new AntPathMatcher();
 
     public JwtFilter(JwtUtil jwtUtil, UserDetailsService userDetailsService) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
+    }
+
+    // Skip processing for endpoints under /auth/**
+    @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String path = request.getServletPath();
+        return antPathMatcher.match("/auth/**", path);
     }
 
     @Override
@@ -43,12 +56,29 @@ public class JwtFilter extends OncePerRequestFilter {
         // Extract JWT from Authorization header
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7); // get string after "Bearer "
-            username = jwtUtil.extractUsername(token);
+            try {
+                username = jwtUtil.extractUsername(token);
+            } catch (Exception e) {
+                log.error(">>> Invalid JWT: {}", e.getMessage());
+                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                response.setContentType("application/json");
+                response.getWriter().write("{\"error\": \"Invalid or expired token\"}");
+                return; // Stop filter chain here
+            }
         }
 
         // Set security context if token is valid and no auth is set yet
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+            UserDetails userDetails = null;
+            try {
+                userDetails = userDetailsService.loadUserByUsername(username);
+            } catch (UsernameNotFoundException e) {
+                log.error(">>> Username not found: {}", username);
+                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                response.setContentType("application/json");
+                response.getWriter().write("{\"error\": \"User doesn't exist\"}");
+                return;
+            }
             if (jwtUtil.validateToken(token, userDetails.getUsername())) {
                 UsernamePasswordAuthenticationToken authToken =
                         new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
