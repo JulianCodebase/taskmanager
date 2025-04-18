@@ -48,6 +48,7 @@ public class TaskController {
         return ResponseEntity.ok(taskService.updateTask(id, taskRequest));
     }
 
+    @AuditLog(desc = "Marking a task as done")
     @PatchMapping("/{id}")
     public ResponseEntity<TaskResponse> markTaskAsDone(@PathVariable Long id) {
         return ResponseEntity.ok(taskService.markTaskAsDone(id));
