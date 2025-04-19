@@ -30,6 +30,6 @@ public class UserDetailServiceImpl implements UserDetailsService {
 
         // Return a Spring Security user object with roles
         return new User(user.getUsername(), user.getPassword(),
-                Collections.singleton(new SimpleGrantedAuthority("ROLE_" + user.getRole())));
+                Collections.singleton(new SimpleGrantedAuthority(user.getUserRole().toString())));
     }
 }

@@ -1,0 +1,77 @@
+package de.personal.taskmanager.service.impl;
+
+import de.personal.taskmanager.common.CommentMapper;
+import de.personal.taskmanager.dto.task.TaskCommentRequest;
+import de.personal.taskmanager.dto.task.TaskCommentResponse;
+import de.personal.taskmanager.model.AppUser;
+import de.personal.taskmanager.model.Task;
+import de.personal.taskmanager.model.TaskComment;
+import de.personal.taskmanager.respository.TaskCommentRepository;
+import de.personal.taskmanager.respository.TaskRepository;
+import de.personal.taskmanager.respository.UserRepository;
+import de.personal.taskmanager.service.TaskCommentService;
+import lombok.RequiredArgsConstructor;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+@RequiredArgsConstructor
+public class TaskCommentServiceImpl implements TaskCommentService {
+    private final TaskCommentRepository commentRepository;
+    private final TaskRepository taskRepository;
+    private final UserRepository userRepository;
+
+    @Override
+    public TaskCommentResponse addComment(TaskCommentRequest request) {
+        Task task = taskRepository.findById(request.getTaskId())
+                .orElseThrow(() -> new IllegalArgumentException("Task not found with ID: " + request.getTaskId()));
+
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        AppUser user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
+
+        TaskComment comment = CommentMapper.toTaskComment(request, task, user);
+        TaskComment saved = commentRepository.save(comment);
+        return CommentMapper.toCommentResponse(saved);
+    }
+
+    @Override
+    public List<TaskCommentResponse> getCommentsByTaskId(Long taskId) {
+        return commentRepository.findByTaskId(taskId)
+                .stream().map(CommentMapper::toCommentResponse)
+                .toList();
+    }
+
+    @Override
+    public void deleteComment(Long commentId) {
+        TaskComment comment = getOwnedComment(commentId);
+        commentRepository.delete(comment);
+    }
+
+    @Override
+    public TaskCommentResponse updateComment(Long commentId, TaskCommentRequest request) {
+        TaskComment comment = getOwnedComment(commentId);
+        comment.setContent(request.getContent());
+        TaskComment updated = commentRepository.save(comment);
+        return CommentMapper.toCommentResponse(updated);
+    }
+
+    @NotNull
+    private TaskComment getOwnedComment(Long commentId) {
+        TaskComment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("Comment not found with ID: " + commentId));
+
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        if (!currentUsername.equals(comment.getAuthor().getUsername())) {
+            throw new AccessDeniedException("Can't perform this action because you're not the author");
+        }
+
+        return comment;
+    }
+}

@@ -1,13 +1,14 @@
 package de.personal.taskmanager.service.impl;
 
+import de.personal.taskmanager.common.TaskMapper;
 import de.personal.taskmanager.dto.task.TaskRequest;
 import de.personal.taskmanager.dto.task.TaskResponse;
 import de.personal.taskmanager.exception.TaskNotFoundException;
 import de.personal.taskmanager.message.TaskEventProducer;
 import de.personal.taskmanager.model.Task;
+import de.personal.taskmanager.model.TaskStatus;
 import de.personal.taskmanager.respository.TaskRepository;
 import de.personal.taskmanager.service.TaskService;
-import de.personal.taskmanager.util.TaskMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -40,7 +41,8 @@ public class TaskServiceImpl implements TaskService {
 
         existingTask.setTitle(taskRequest.getTitle());
         existingTask.setDescription(taskRequest.getDescription());
-        existingTask.setDone(taskRequest.getDone());
+        existingTask.setPriority(taskRequest.getPriority());
+        existingTask.setStatus(taskRequest.getStatus());
 
         Task savedTask = taskRepository.save(existingTask);
 
@@ -55,9 +57,8 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Page<TaskResponse> getAllTasks(Boolean done, Pageable pageable) {
-        Page<Task> page = (done != null) ? taskRepository.findByDone(true, pageable)
-                : taskRepository.findAll(pageable);
+    public Page<TaskResponse> getAllTasks(Pageable pageable) {
+        Page<Task> page = taskRepository.findAll(pageable);
         return page.map(TaskMapper::toTaskResponse);
     }
 
@@ -75,7 +76,7 @@ public class TaskServiceImpl implements TaskService {
                 () -> new TaskNotFoundException(id)
         );
 
-        task.setDone(true);
+        task.setStatus(TaskStatus.DONE);
         Task savedTask = taskRepository.save(task);
         String message = String.format("Task completed: ID=%d, description=%s", task.getId(), task.getDescription());
         taskEventProducer.sendTaskCompletedMessage(message); // publish an event when the task is updated to database

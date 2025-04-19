@@ -3,6 +3,7 @@ package de.personal.taskmanager.integration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.personal.taskmanager.dto.task.TaskRequest;
 import de.personal.taskmanager.model.Task;
+import de.personal.taskmanager.model.TaskStatus;
 import de.personal.taskmanager.respository.TaskRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -72,9 +73,9 @@ public class TaskIntegrationTest {
     @Test
     void getAllTasks_shouldReturn200AndCompletedTasks() throws Exception{
         Task task1 = createSampleTask("Task1", "Task1 Desc", LocalDate.now());
-        task1.setDone(true);
+        task1.setStatus(TaskStatus.DONE);
         Task task2 = createSampleTask("Task2", "Task2 Desc", LocalDate.now().plusDays(1));
-        task2.setDone(true);
+        task2.setStatus(TaskStatus.DONE);
         Task task3 = createSampleTask("Task3", "Task3 Desc", LocalDate.now().plusDays(2));
         taskRepository.saveAll(List.of(task1, task2, task3));
 
@@ -178,7 +179,7 @@ public class TaskIntegrationTest {
         task.setTitle(title);
         task.setDescription(description);
         task.setDueDate(dueDate);
-        task.setDone(false);
+        task.setStatus(TaskStatus.TODO);
         return task;
     }
 

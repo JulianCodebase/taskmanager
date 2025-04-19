@@ -48,8 +48,8 @@ public class AuthServiceImpl implements AuthService {
         AppUser user = new AppUser();
         user.setUsername(registerRequest.getUsername());
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        user.setRole(registerRequest.getRole().toUpperCase());
+        user.setUserRole(registerRequest.getUserRole());
         userRepository.save(user);
-        return new AuthResponse(user.getUsername(), user.getRole(), "User successfully created");
+        return new AuthResponse(user.getUsername(), user.getUserRole().toString(), "User successfully created");
     }
 }

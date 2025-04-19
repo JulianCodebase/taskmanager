@@ -17,16 +17,10 @@ public class Task {
     private String title;
     private String description;
     private LocalDate dueDate;
-    private Boolean done = false;
 
-    @Override
-    public String toString() {
-        return "Task{" +
-                "id=" + id +
-                ", title='" + title + '\'' +
-                ", description='" + description + '\'' +
-                ", dueDate=" + dueDate +
-                ", done=" + done +
-                '}';
-    }
+    @Enumerated(EnumType.STRING)
+    private TaskPriority priority;
+
+    @Enumerated(EnumType.STRING)
+    private TaskStatus status;
 }

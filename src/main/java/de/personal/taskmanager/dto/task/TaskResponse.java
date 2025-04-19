@@ -1,5 +1,7 @@
 package de.personal.taskmanager.dto.task;
 
+import de.personal.taskmanager.model.TaskPriority;
+import de.personal.taskmanager.model.TaskStatus;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -7,5 +9,6 @@ import lombok.Setter;
 @Setter
 public class TaskResponse extends TaskBase {
     private Long id;
-    private Boolean done;
+    private TaskPriority priority;
+    private TaskStatus status;
 }

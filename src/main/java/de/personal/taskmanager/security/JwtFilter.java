@@ -1,5 +1,6 @@
 package de.personal.taskmanager.security;
 
+import de.personal.taskmanager.exception.JwtExceptionHandler;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -32,10 +33,12 @@ public class JwtFilter extends OncePerRequestFilter {
     private final UserDetailsService userDetailsService;
 
     private final AntPathMatcher antPathMatcher = new AntPathMatcher();
+    private final JwtExceptionHandler jwtExceptionHandler;
 
-    public JwtFilter(JwtUtil jwtUtil, UserDetailsService userDetailsService) {
+    public JwtFilter(JwtUtil jwtUtil, UserDetailsService userDetailsService, JwtExceptionHandler jwtExceptionHandler) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
+        this.jwtExceptionHandler = jwtExceptionHandler;
     }
 
     // Skip processing for endpoints under /auth/**
@@ -59,10 +62,7 @@ public class JwtFilter extends OncePerRequestFilter {
             try {
                 username = jwtUtil.extractUsername(token);
             } catch (Exception e) {
-                log.error(">>> Invalid JWT: {}", e.getMessage());
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.setContentType("application/json");
-                response.getWriter().write("{\"error\": \"Invalid or expired token\"}");
+                jwtExceptionHandler.handleInvalidToken(response, e);
                 return; // Stop filter chain here
             }
         }
@@ -73,10 +73,7 @@ public class JwtFilter extends OncePerRequestFilter {
             try {
                 userDetails = userDetailsService.loadUserByUsername(username);
             } catch (UsernameNotFoundException e) {
-                log.error(">>> Username not found: {}", username);
-                response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-                response.setContentType("application/json");
-                response.getWriter().write("{\"error\": \"User doesn't exist\"}");
+                jwtExceptionHandler.handleUserNotFound(response, e);
                 return;
             }
             if (jwtUtil.validateToken(token, userDetails.getUsername())) {

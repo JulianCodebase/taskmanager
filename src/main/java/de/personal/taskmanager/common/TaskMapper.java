@@ -1,4 +1,4 @@
-package de.personal.taskmanager.util;
+package de.personal.taskmanager.common;
 
 import de.personal.taskmanager.dto.task.TaskRequest;
 import de.personal.taskmanager.dto.task.TaskResponse;
@@ -10,7 +10,8 @@ public class TaskMapper {
         task.setTitle(taskRequest.getTitle());
         task.setDescription(taskRequest.getDescription());
         task.setDueDate(taskRequest.getDueDate());
-        task.setDone(false);
+        task.setPriority(taskRequest.getPriority());
+        task.setStatus(taskRequest.getStatus());
         return task;
     }
 
@@ -20,7 +21,8 @@ public class TaskMapper {
         taskResponse.setDescription(task.getDescription());
         taskResponse.setTitle(task.getTitle());
         taskResponse.setDueDate(task.getDueDate());
-        taskResponse.setDone(task.getDone());
+        taskResponse.setPriority(task.getPriority());
+        taskResponse.setStatus(task.getStatus());
         return taskResponse;
     }
 }

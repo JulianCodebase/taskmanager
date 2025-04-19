@@ -1,6 +1,7 @@
 package de.personal.taskmanager.dto.auth;
 
-import jakarta.validation.constraints.NotBlank;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import de.personal.taskmanager.model.UserRole;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -9,6 +10,6 @@ import lombok.ToString;
 @Setter
 @ToString(callSuper = true) // Include parent information in `toString`
 public class AuthRegisterRequest extends AuthRequest {
-    @NotBlank
-    private String role; // USER or ADMIN
+    @JsonProperty("role")
+    private UserRole userRole; // USER or ADMIN
 }

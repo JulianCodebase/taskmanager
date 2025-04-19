@@ -9,7 +9,7 @@ public interface TaskService {
     TaskResponse createTask(TaskRequest taskRequest);
     TaskResponse updateTask(Long id, TaskRequest taskRequest);
     TaskResponse findTaskByIdOrThrow(Long id);
-    Page<TaskResponse> getAllTasks(Boolean done, Pageable pageable);
+    Page<TaskResponse> getAllTasks(Pageable pageable);
     void deleteTask(Long id);
     TaskResponse markTaskAsDone(Long id);
 

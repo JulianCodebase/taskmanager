@@ -11,7 +11,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-public class TaskBase {
+public abstract class TaskBase {
     @NotBlank(message = "Title is mandatory")
     @Size(max = 100, message = "Title must be at most 100 characters")
     private String title;

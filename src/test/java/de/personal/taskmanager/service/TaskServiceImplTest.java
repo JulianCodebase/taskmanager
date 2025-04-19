@@ -1,11 +1,12 @@
 package de.personal.taskmanager.service;
 
+import de.personal.taskmanager.common.TaskMapper;
 import de.personal.taskmanager.dto.task.TaskRequest;
 import de.personal.taskmanager.dto.task.TaskResponse;
 import de.personal.taskmanager.model.Task;
+import de.personal.taskmanager.model.TaskStatus;
 import de.personal.taskmanager.respository.TaskRepository;
 import de.personal.taskmanager.service.impl.TaskServiceImpl;
-import de.personal.taskmanager.util.TaskMapper;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,7 +18,8 @@ import org.springframework.context.ApplicationEventPublisher;
 import java.time.LocalDate;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -106,7 +108,7 @@ class TaskServiceImplTest {
         when(taskRepository.findById(1L)).thenReturn(Optional.of(TaskMapper.toTaskEntity(taskRequest)));
         when(taskRepository.save(any(Task.class))).thenAnswer(invocation -> invocation.getArgument(0));
         TaskResponse completedTask = taskService.markTaskAsDone(1L);
-        assertTrue(completedTask.getDone());
+        assertEquals(TaskStatus.DONE, completedTask.getStatus());
         verify(taskRepository).findById(1L);
         verify(taskRepository).save(any(Task.class));
     }

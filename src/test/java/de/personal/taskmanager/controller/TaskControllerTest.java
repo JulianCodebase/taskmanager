@@ -1,12 +1,12 @@
 package de.personal.taskmanager.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.personal.taskmanager.common.TaskMapper;
 import de.personal.taskmanager.dto.task.TaskRequest;
 import de.personal.taskmanager.dto.task.TaskResponse;
 import de.personal.taskmanager.exception.TaskNotFoundException;
 import de.personal.taskmanager.model.Task;
 import de.personal.taskmanager.service.TaskService;
-import de.personal.taskmanager.util.TaskMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -59,13 +59,13 @@ class TaskControllerTest {
     void getAllTasks_shouldReturnEmptyList() throws Exception {
         Page<TaskResponse> emptyPage = Page.empty();
 
-        when(taskService.getAllTasks(any(Boolean.class), any())).thenReturn(emptyPage);
+        when(taskService.getAllTasks(any())).thenReturn(emptyPage);
 
         mockMvc.perform(get("/tasks"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content.length()").value(0));
 
-        verify(taskService).getAllTasks(any(Boolean.class), any());
+        verify(taskService).getAllTasks(any());
     }
 
     @Test
@@ -76,14 +76,14 @@ class TaskControllerTest {
         List<TaskResponse> taskList = new ArrayList<>(List.of(task1, task2));
         Page<TaskResponse> taskPage = new PageImpl<>(taskList);
 
-        when(taskService.getAllTasks(eq(null), any())).thenReturn(taskPage);
+        when(taskService.getAllTasks(any())).thenReturn(taskPage);
 
         mockMvc.perform(get("/tasks"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content.length()").value(2))
                 .andExpect(jsonPath("$.content[1].id").value(2));
 
-        verify(taskService).getAllTasks(eq(null), any());
+        verify(taskService).getAllTasks(any());
     }
 
     @Test
@@ -95,12 +95,12 @@ class TaskControllerTest {
         List<TaskResponse> taskList = List.of(task1, task2);
         Page<TaskResponse> taskPage = new PageImpl<>(taskList);
 
-        when(taskService.getAllTasks(any(Boolean.class), any())).thenReturn(taskPage);
+        when(taskService.getAllTasks(any())).thenReturn(taskPage);
 
         mockMvc.perform(get("/tasks?done=false"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content.length()").value(2));
-        verify(taskService).getAllTasks(any(Boolean.class), any());
+        verify(taskService).getAllTasks(any());
     }
 
     @Test

@@ -34,7 +34,7 @@ public class TaskController {
     public ResponseEntity<Page<TaskResponse>> getAllTasks(
             @RequestParam(required = false) Boolean done,
             @PageableDefault(size = 10, sort = "dueDate") Pageable pageable) {
-        return ResponseEntity.ok(taskService.getAllTasks(done, pageable));
+        return ResponseEntity.ok(taskService.getAllTasks(pageable));
     }
 
     @GetMapping("/{id}")
