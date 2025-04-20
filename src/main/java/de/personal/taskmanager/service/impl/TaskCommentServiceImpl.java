@@ -3,7 +3,6 @@ package de.personal.taskmanager.service.impl;
 import de.personal.taskmanager.common.CommentMapper;
 import de.personal.taskmanager.dto.task.TaskCommentRequest;
 import de.personal.taskmanager.dto.task.TaskCommentResponse;
-import de.personal.taskmanager.model.AppUser;
 import de.personal.taskmanager.model.Task;
 import de.personal.taskmanager.model.TaskComment;
 import de.personal.taskmanager.respository.TaskCommentRepository;
@@ -14,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,11 +29,7 @@ public class TaskCommentServiceImpl implements TaskCommentService {
         Task task = taskRepository.findById(request.getTaskId())
                 .orElseThrow(() -> new IllegalArgumentException("Task not found with ID: " + request.getTaskId()));
 
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        AppUser user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
-
-        TaskComment comment = CommentMapper.toTaskComment(request, task, user);
+        TaskComment comment = CommentMapper.toTaskComment(request, task);
         TaskComment saved = commentRepository.save(comment);
         return CommentMapper.toCommentResponse(saved);
     }
@@ -69,7 +63,7 @@ public class TaskCommentServiceImpl implements TaskCommentService {
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
 
         if (!currentUsername.equals(comment.getAuthor().getUsername())) {
-            throw new AccessDeniedException("Can't perform this action because you're not the author");
+            throw new AccessDeniedException("Operation forbidden because you're not the author");
         }
 
         return comment;

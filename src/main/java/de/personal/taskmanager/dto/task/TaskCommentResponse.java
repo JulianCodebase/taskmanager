@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 public class TaskCommentResponse {
     private Long id;
     private String content;
-    private LocalDateTime createdAt;
     private String authorUsername;
+    private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
 }

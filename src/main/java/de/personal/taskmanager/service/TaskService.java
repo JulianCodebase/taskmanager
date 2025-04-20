@@ -7,10 +7,14 @@ import org.springframework.data.domain.Pageable;
 
 public interface TaskService {
     TaskResponse createTask(TaskRequest taskRequest);
-    TaskResponse updateTask(Long id, TaskRequest taskRequest);
-    TaskResponse findTaskByIdOrThrow(Long id);
-    Page<TaskResponse> getAllTasks(Pageable pageable);
-    void deleteTask(Long id);
-    TaskResponse markTaskAsDone(Long id);
 
+    TaskResponse updateTask(Long id, TaskRequest taskRequest);
+
+    TaskResponse findTaskByIdOrThrow(Long id);
+
+    Page<TaskResponse> getAllTasks(Pageable pageable);
+
+    void deleteTask(Long id);
+
+    TaskResponse markTaskAsDone(Long id);
 }
