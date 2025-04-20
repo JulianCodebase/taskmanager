@@ -21,7 +21,7 @@ public class TaskComment {
     private Long id;
 
     @Column(nullable = false)
-    @Size(min = 5, max = 300, message = "Comment must be between 5 and 300 characters.")
+    @Size(min = 5, max = 500, message = "Comment must be between 5 and 500 characters.")
     private String content;
 
     @CreatedDate

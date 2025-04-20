@@ -5,11 +5,15 @@ import de.personal.taskmanager.dto.task.TaskCommentResponse;
 import de.personal.taskmanager.service.TaskCommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/comments")
@@ -26,11 +30,16 @@ public class TaskCommentController {
     }
 
     /**
-     * Retrieves all comments for a specific task
+     * Retrieves filtered comments
      */
     @GetMapping("/task/{taskId}")
-    public ResponseEntity<List<TaskCommentResponse>> getComments(@PathVariable Long taskId) {
-        return ResponseEntity.ok(commentService.getCommentsByTaskId(taskId));
+    public ResponseEntity<Page<TaskCommentResponse>> getCommentsByTask(
+            @PathVariable Long taskId,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate after,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate before,
+            @PageableDefault(size = 10) Pageable pageable) {
+        return ResponseEntity.ok(commentService.getFilteredComments(taskId, keyword, after, before, pageable));
     }
 
     @DeleteMapping("/{id}")

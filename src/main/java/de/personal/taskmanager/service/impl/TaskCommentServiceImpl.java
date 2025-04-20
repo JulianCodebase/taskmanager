@@ -11,11 +11,15 @@ import de.personal.taskmanager.respository.UserRepository;
 import de.personal.taskmanager.service.TaskCommentService;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 
 @Service
 @RequiredArgsConstructor
@@ -35,10 +39,18 @@ public class TaskCommentServiceImpl implements TaskCommentService {
     }
 
     @Override
-    public List<TaskCommentResponse> getCommentsByTaskId(Long taskId) {
-        return commentRepository.findByTaskId(taskId)
-                .stream().map(CommentMapper::toCommentResponse)
-                .toList();
+    public Page<TaskCommentResponse> getFilteredComments(Long taskId, String keyword, LocalDate after, LocalDate before, Pageable pageable) {
+        // Convert LocalDate to LocalDateTime to match DB columns' format
+        // If no filter provided, return last 30-day comments
+        LocalDateTime afterDateTime = (after != null)
+                ? after.atStartOfDay()
+                : LocalDate.now().minusDays(30).atStartOfDay();
+        LocalDateTime beforeDateTime = (before != null)
+                ? before.atTime(LocalTime.MAX)
+                : LocalDateTime.now();
+
+        return commentRepository.findFilteredComments(taskId, keyword, afterDateTime, beforeDateTime, pageable)
+                .map(CommentMapper::toCommentResponse);
     }
 
     @Override
