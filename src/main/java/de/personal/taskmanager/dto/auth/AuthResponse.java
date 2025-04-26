@@ -1,5 +1,6 @@
 package de.personal.taskmanager.dto.auth;
 
+import de.personal.taskmanager.model.UserRole;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,6 +10,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class AuthResponse {
     private String username;
-    private String role; // USER or ADMIN
+    private UserRole role; // USER or ADMIN
     private String message;
 }

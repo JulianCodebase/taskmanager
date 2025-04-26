@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -33,16 +34,18 @@ public class AuthServiceImpl implements AuthService {
                             username,
                             authRequest.getPassword()));
         } catch (BadCredentialsException e) {
-            return new AuthResponse(username, "", "Invalid username or password");
+            return new AuthResponse(username, null, "Invalid username or password");
         }
 
-        return new AuthResponse(username, "", "Login successful. Token: " + jwtUtil.generateToken(username));
+        AppUser user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found after successful authentication: " + username));
+        return new AuthResponse(username, user.getUserRole(), "Login successful. Token: " + jwtUtil.generateToken(username));
     }
 
     @Override
     public AuthResponse register(AuthRegisterRequest registerRequest) {
         if (userRepository.existsByUsername(registerRequest.getUsername())) {
-            return new AuthResponse(registerRequest.getUsername(), "", "User already exists");
+            return new AuthResponse(registerRequest.getUsername(), null, "User already exists");
         }
 
         AppUser user = new AppUser();
@@ -50,6 +53,6 @@ public class AuthServiceImpl implements AuthService {
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         user.setUserRole(registerRequest.getUserRole());
         userRepository.save(user);
-        return new AuthResponse(user.getUsername(), user.getUserRole().toString(), "User successfully created");
+        return new AuthResponse(user.getUsername(), user.getUserRole(), "User successfully created");
     }
 }

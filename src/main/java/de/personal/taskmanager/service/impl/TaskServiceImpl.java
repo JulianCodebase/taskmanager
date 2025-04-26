@@ -14,6 +14,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 @RequiredArgsConstructor
 public class TaskServiceImpl implements TaskService {
@@ -21,7 +23,14 @@ public class TaskServiceImpl implements TaskService {
 
     private final TaskEventProducer taskEventProducer;
 
-    // create a new task, and prevent duplicate titles for tasks on the same due date
+    /**
+     * Create a new task based on the provided request.
+     * Prevents creating duplicate tasks with the same title and due date.
+     *
+     * @param taskRequest the request object containing task details
+     * @return the created task as a response DTO
+     * @throws IllegalArgumentException if a duplicate task already exists
+     */
     @Override
     public TaskResponse createTask(TaskRequest taskRequest) {
         Task task = TaskMapper.toTaskEntity(taskRequest);
@@ -34,6 +43,14 @@ public class TaskServiceImpl implements TaskService {
         return TaskMapper.toTaskResponse(savedTask);
     }
 
+    /**
+     * Update an existing task with new details.
+     *
+     * @param id the ID of the task to update
+     * @param taskRequest the updated task information
+     * @return the updated task as a response DTO
+     * @throws TaskNotFoundException if the task does not exist
+     */
     @Override
     public TaskResponse updateTask(Long id, TaskRequest taskRequest) {
         Task existingTask = taskRepository.findById(id)
@@ -56,20 +73,45 @@ public class TaskServiceImpl implements TaskService {
                 .orElseThrow(() -> new TaskNotFoundException(id));
     }
 
+    /**
+     * Retrieve all tasks that are not soft-deleted.
+     * Only tasks with {@code deleted = false} are returned.
+     *
+     * @param pageable pagination and sorting information
+     * @return a page of active (undeleted) tasks
+     */
     @Override
     public Page<TaskResponse> getAllTasks(Pageable pageable) {
         Page<Task> page = taskRepository.findAll(pageable);
         return page.map(TaskMapper::toTaskResponse);
     }
 
+    /**
+     * Soft delete a task by marking it as deleted.
+     * Sets {@code deleted = true} and records the deletion time.
+     *
+     * @param id the ID of the task to soft-delete
+     * @throws TaskNotFoundException if the task does not exist
+     */
     @Override
     public void deleteTask(Long id) {
-        if (!taskRepository.existsById(id)) {
-            throw new TaskNotFoundException(id);
-        }
-        taskRepository.deleteById(id);
+        Task task = taskRepository.findById(id).orElseThrow(
+                () -> new TaskNotFoundException(id)
+        );
+        task.setDeleted(true);
+        task.setDeletedAt(LocalDateTime.now());
+
+        taskRepository.save(task);
     }
 
+    /**
+     * Mark a task as completed (status DONE).
+     * Also publishes a task completion event.
+     *
+     * @param id the ID of the task to mark as done
+     * @return the updated task as a response DTO
+     * @throws TaskNotFoundException if the task does not exist
+     */
     @Override
     public TaskResponse markTaskAsDone(Long id) {
         Task task = taskRepository.findById(id).orElseThrow(
