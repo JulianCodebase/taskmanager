@@ -21,7 +21,7 @@ public class AuditLogRecord {
 
     private String username;
     private String method;
-    private String arguments;
+    private String result;  // Value returned by a method
     private String description;
     private LocalDateTime timestamp;
 }

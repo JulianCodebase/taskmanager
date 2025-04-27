@@ -14,6 +14,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.Map;
+
 @Slf4j
 @RestController
 @RequestMapping("/tasks")
@@ -33,8 +36,8 @@ public class TaskController {
     @GetMapping
     public ResponseEntity<Page<TaskResponse>> getAllTasks(
             @RequestParam(required = false) Boolean done,
-            @PageableDefault(size = 10, sort = "dueDate") Pageable pageable) {
-        return ResponseEntity.ok(taskService.getAllTasks(pageable));
+            @PageableDefault(size = 20, sort = "dueDate") Pageable pageable) {
+        return ResponseEntity.ok(taskService.getAllActiveTasks(pageable));
     }
 
     @GetMapping("/{id}")
@@ -48,17 +51,36 @@ public class TaskController {
         return ResponseEntity.ok(taskService.updateTask(id, taskRequest));
     }
 
-    @AuditLog(desc = "Marking a task as done")
     @PatchMapping("/{id}")
     public ResponseEntity<TaskResponse> markTaskAsDone(@PathVariable Long id) {
         return ResponseEntity.ok(taskService.markTaskAsDone(id));
     }
 
-    @AuditLog(desc = "Deleting a task")
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
         taskService.deleteTask(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/restore")
+    public ResponseEntity<TaskResponse> restoreTask(@PathVariable Long id) {
+        return ResponseEntity.ok(taskService.restoreTask(id));
+    }
+
+    @PatchMapping("/restore")
+    public ResponseEntity<Map<String, Object>> restoreAllSoftDeletedTasks() {
+        int restoredCount = taskService.restoreAllSoftDeletedTasks();
+        Map<String, Object> response = Map.of(
+                "restoredCount", restoredCount,
+                "timestamp", LocalDateTime.now()
+        );
+        return ResponseEntity.ok(response);
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @DeleteMapping("/{id}/force")
+    public ResponseEntity<Void> forceDeleteTask(@PathVariable Long id) {
+        taskService.forceDeleteTask(id);
         return ResponseEntity.noContent().build();
     }
 }

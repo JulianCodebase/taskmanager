@@ -7,6 +7,7 @@ import de.personal.taskmanager.exception.TaskNotFoundException;
 import de.personal.taskmanager.message.TaskEventProducer;
 import de.personal.taskmanager.model.Task;
 import de.personal.taskmanager.model.TaskStatus;
+import de.personal.taskmanager.respository.TaskCommentRepository;
 import de.personal.taskmanager.respository.TaskRepository;
 import de.personal.taskmanager.service.TaskService;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
 
     private final TaskEventProducer taskEventProducer;
+    private final TaskCommentRepository taskCommentRepository;
 
     /**
      * Create a new task based on the provided request.
@@ -43,14 +45,6 @@ public class TaskServiceImpl implements TaskService {
         return TaskMapper.toTaskResponse(savedTask);
     }
 
-    /**
-     * Update an existing task with new details.
-     *
-     * @param id the ID of the task to update
-     * @param taskRequest the updated task information
-     * @return the updated task as a response DTO
-     * @throws TaskNotFoundException if the task does not exist
-     */
     @Override
     public TaskResponse updateTask(Long id, TaskRequest taskRequest) {
         Task existingTask = taskRepository.findById(id)
@@ -81,8 +75,8 @@ public class TaskServiceImpl implements TaskService {
      * @return a page of active (undeleted) tasks
      */
     @Override
-    public Page<TaskResponse> getAllTasks(Pageable pageable) {
-        Page<Task> page = taskRepository.findAll(pageable);
+    public Page<TaskResponse> getAllActiveTasks(Pageable pageable) {
+        Page<Task> page = taskRepository.findAllByDeletedFalse(pageable);
         return page.map(TaskMapper::toTaskResponse);
     }
 
@@ -105,6 +99,31 @@ public class TaskServiceImpl implements TaskService {
     }
 
     /**
+     * Restore a specific soft deleted task.
+     * @param id the ID of the task to restore
+     * @return the restored task
+     */
+    @Override
+    public TaskResponse restoreTask(Long id) {
+        Task task = taskRepository.findById(id)
+                .orElseThrow(() -> new TaskNotFoundException(id));
+
+        if (!task.isDeleted()) {
+            throw new IllegalStateException("Task is not soft deleted");
+        }
+
+        task.setDeleted(false);
+        task.setDeletedAt(null);
+        Task savedTask = taskRepository.save(task);
+        return TaskMapper.toTaskResponse(savedTask);
+    }
+
+    @Override
+    public int restoreAllSoftDeletedTasks() {
+        return taskRepository.restoreSoftDeletedTasks();
+    }
+
+    /**
      * Mark a task as completed (status DONE).
      * Also publishes a task completion event.
      *
@@ -123,5 +142,19 @@ public class TaskServiceImpl implements TaskService {
         String message = String.format("Task completed: ID=%d, description=%s", task.getId(), task.getDescription());
         taskEventProducer.sendTaskCompletedMessage(message); // publish an event when the task is updated to database
         return TaskMapper.toTaskResponse(savedTask);
+    }
+
+    /**
+     * Permanently delete a task immediately, bypassing soft delete.
+     *
+     * @param id the ID of the task to delete
+     */
+    @Override
+    public void forceDeleteTask(Long id) {
+        Task task = taskRepository.findById(id).orElseThrow(
+                () -> new TaskNotFoundException(id)
+        );
+
+        taskRepository.delete(task); // deleting a task automatically deletes its comments because of cascade type
     }
 }

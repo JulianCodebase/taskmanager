@@ -6,8 +6,8 @@ import de.personal.taskmanager.respository.AuditLogRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
-import org.aspectj.lang.annotation.Before;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.security.core.Authentication;
@@ -15,7 +15,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 
 /**
  * Aspect that intercepts methods annotated with @AuditLog to log method execution details.
@@ -38,34 +37,35 @@ public class AuditLoggingAspect {
     /**
      * Advice that logs method entry with audit information.
      */
-    @Before("auditLogPointcut() && @annotation(auditLog)")
-    public void logAuditInfo(JoinPoint joinPoint, AuditLog auditLog) {
+    @AfterReturning(pointcut = "auditLogPointcut() && @annotation(auditLog)", returning = "result")
+    public void logAuditInfo(JoinPoint joinPoint, AuditLog auditLog, Object result) {
         // Get method signature and arguments
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
         String methodName = signature.getDeclaringTypeName() + "." + signature.getName();
-        String arguments = Arrays.toString(joinPoint.getArgs());
 
         // Get authenticated user (if present)
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         String username = (auth != null && auth.isAuthenticated()) ? auth.getName() : "anonymous";
 
         // Log structured audit info
-        log.info("[AUDIT] {} User: {} | Method: {} | Args: {} | Time: {}",
+        log.info("[AUDIT] {} User: {} | Method: {} | Result: {} | Time: {}",
                 auditLog.desc() + " >>> ",
                 username,
                 methodName,
-                arguments,
+                result,
                 LocalDateTime.now());
 
         // Persist structured audit info into DB
-        auditLogRepository.save(
-                AuditLogRecord.builder()
-                        .username(username)
-                        .method(methodName)
-                        .arguments(arguments)
-                        .description(auditLog.desc())
-                        .timestamp(LocalDateTime.now())
-                        .build()
-        );
+        if (result instanceof Integer deletedCount && deletedCount > 0 ) {
+            auditLogRepository.save(
+                    AuditLogRecord.builder()
+                            .username(username)
+                            .method(methodName)
+                            .result(result.toString())
+                            .description(auditLog.desc())
+                            .timestamp(LocalDateTime.now())
+                            .build()
+            );
+        }
     }
 }

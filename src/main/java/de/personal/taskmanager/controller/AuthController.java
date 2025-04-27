@@ -1,6 +1,5 @@
 package de.personal.taskmanager.controller;
 
-import de.personal.taskmanager.annotation.AuditLog;
 import de.personal.taskmanager.dto.auth.AuthRegisterRequest;
 import de.personal.taskmanager.dto.auth.AuthRequest;
 import de.personal.taskmanager.dto.auth.AuthResponse;
@@ -22,13 +21,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class AuthController {
     private final AuthService authService;
 
-    @AuditLog(desc = "Trying to login")
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest authRequest) {
         return ResponseEntity.ok(authService.login(authRequest));
     }
 
-    @AuditLog(desc = "Trying to register")
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> register(@RequestBody @Valid AuthRegisterRequest registerRequest) {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(registerRequest));

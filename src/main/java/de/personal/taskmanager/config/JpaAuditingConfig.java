@@ -13,6 +13,17 @@ import java.util.Optional;
 @Configuration
 @EnableJpaAuditing
 public class JpaAuditingConfig {
+    /**
+     * Provides the current authenticated AppUser for JPA auditing purposes.
+     * <p>
+     * This AuditorAware bean is used by Spring Data JPA to automatically populate
+     * auditing fields such as @CreatedBy and @LastModifiedBy based on the currently
+     * logged-in user. If no user is authenticated or the authentication is anonymous,
+     * no auditor is returned.
+     *
+     * @param userRepository the repository used to fetch the AppUser based on username
+     * @return an Optional containing the current AppUser if available, otherwise empty
+     */
     @Bean
     public AuditorAware<AppUser> userAuditorAware(UserRepository userRepository) {
         return () ->

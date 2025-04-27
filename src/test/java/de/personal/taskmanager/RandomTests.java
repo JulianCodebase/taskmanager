@@ -17,4 +17,10 @@ public class RandomTests {
         System.out.println(matcher.matchStart("/api/user/", "/api"));    // true
         System.out.println(matcher.matchStart("/api/user/", "/api/user/details/"));    // false
     }
+
+    @Test
+    void testIntegerToString() {
+        Object a = Integer.valueOf(1);
+        System.out.println(a.toString());
+    }
 }

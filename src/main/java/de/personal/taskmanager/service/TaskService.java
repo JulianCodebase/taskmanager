@@ -12,9 +12,15 @@ public interface TaskService {
 
     TaskResponse findTaskByIdOrThrow(Long id);
 
-    Page<TaskResponse> getAllTasks(Pageable pageable);
+    Page<TaskResponse> getAllActiveTasks(Pageable pageable);
 
     void deleteTask(Long id);
 
+    TaskResponse restoreTask(Long id);
+
+    int restoreAllSoftDeletedTasks();
+
     TaskResponse markTaskAsDone(Long id);
+
+    void forceDeleteTask(Long id);
 }

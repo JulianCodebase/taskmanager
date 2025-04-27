@@ -6,6 +6,7 @@ import de.personal.taskmanager.dto.task.TaskRequest;
 import de.personal.taskmanager.dto.task.TaskResponse;
 import de.personal.taskmanager.exception.TaskNotFoundException;
 import de.personal.taskmanager.model.Task;
+import de.personal.taskmanager.model.TaskStatus;
 import de.personal.taskmanager.service.TaskService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,13 +60,13 @@ class TaskControllerTest {
     void getAllTasks_shouldReturnEmptyList() throws Exception {
         Page<TaskResponse> emptyPage = Page.empty();
 
-        when(taskService.getAllTasks(any())).thenReturn(emptyPage);
+        when(taskService.getAllActiveTasks(any())).thenReturn(emptyPage);
 
         mockMvc.perform(get("/tasks"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content.length()").value(0));
 
-        verify(taskService).getAllTasks(any());
+        verify(taskService).getAllActiveTasks(any());
     }
 
     @Test
@@ -76,14 +77,14 @@ class TaskControllerTest {
         List<TaskResponse> taskList = new ArrayList<>(List.of(task1, task2));
         Page<TaskResponse> taskPage = new PageImpl<>(taskList);
 
-        when(taskService.getAllTasks(any())).thenReturn(taskPage);
+        when(taskService.getAllActiveTasks(any())).thenReturn(taskPage);
 
         mockMvc.perform(get("/tasks"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content.length()").value(2))
                 .andExpect(jsonPath("$.content[1].id").value(2));
 
-        verify(taskService).getAllTasks(any());
+        verify(taskService).getAllActiveTasks(any());
     }
 
     @Test
@@ -95,12 +96,12 @@ class TaskControllerTest {
         List<TaskResponse> taskList = List.of(task1, task2);
         Page<TaskResponse> taskPage = new PageImpl<>(taskList);
 
-        when(taskService.getAllTasks(any())).thenReturn(taskPage);
+        when(taskService.getAllActiveTasks(any())).thenReturn(taskPage);
 
         mockMvc.perform(get("/tasks?done=false"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content.length()").value(2));
-        verify(taskService).getAllTasks(any());
+        verify(taskService).getAllActiveTasks(any());
     }
 
     @Test
@@ -172,7 +173,7 @@ class TaskControllerTest {
         task.setTitle(title);
         task.setDescription(description);
         task.setDueDate(LocalDate.now());
-        task.setDone(done);
+        task.setStatus(TaskStatus.DONE);
         return task;
     }
 
