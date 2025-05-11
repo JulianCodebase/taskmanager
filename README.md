@@ -62,8 +62,6 @@ sequenceDiagram
 
 ```
 
----
-
 ### 🔄 Kafka-Driven Messaging
 
 Applies **Apache Kafka** to publish task completion events. This decouples the main application from secondary concerns like notifications, logging, or reporting, enabling asynchronous, scalable workflows.
@@ -92,8 +90,6 @@ sequenceDiagram
     TaskEventConsumer ->> NotificationService: notifyTaskCompleted(message)
 ```
 
----
-
 ### 🛠️ Production-Ready CI/CD
 
 The entire application is **Dockerized** and integrated with **Jenkins pipelines**. It includes automated steps for testing, image building, and deployment, simulating real-world deployment workflows.
@@ -102,8 +98,6 @@ The entire application is **Dockerized** and integrated with **Jenkins pipelines
 - Jenkinsfile for automated build/test/deploy
 - GitHub integration for CI triggers
   ![Production-Ready CI/CD](<docs/assets/Production-Ready CI:CD.png>)
-
----
 
 ### 📝 Audit Logging via AOP
 
@@ -121,8 +115,6 @@ flowchart LR
     D --> E["AuditLogRepository.save"]
     E --> F["AuditLogRecord stored in DB"]
 ```
-
----
 
 ### ♻️ Task Deletion and Recovery
 
@@ -153,8 +145,6 @@ flowchart TD
     G --> D
     D --> H["Database"]
 ```
-
----
 
 ## Tech Stack
 
