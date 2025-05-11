@@ -3,6 +3,7 @@ package de.personal.taskmanager.controller;
 import de.personal.taskmanager.annotation.AuditLog;
 import de.personal.taskmanager.dto.task.TaskRequest;
 import de.personal.taskmanager.dto.task.TaskResponse;
+import de.personal.taskmanager.model.AppUser;
 import de.personal.taskmanager.service.TaskService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -52,8 +54,9 @@ public class TaskController {
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<TaskResponse> markTaskAsDone(@PathVariable Long id) {
-        return ResponseEntity.ok(taskService.markTaskAsDone(id));
+    public ResponseEntity<TaskResponse> markTaskAsDone(@PathVariable Long id,
+                                                       @AuthenticationPrincipal AppUser user) {
+        return ResponseEntity.ok(taskService.markTaskAsDone(id, user));
     }
 
     @DeleteMapping("/{id}")

@@ -107,7 +107,7 @@ class TaskServiceImplTest {
 
         when(taskRepository.findById(1L)).thenReturn(Optional.of(TaskMapper.toTaskEntity(taskRequest)));
         when(taskRepository.save(any(Task.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        TaskResponse completedTask = taskService.markTaskAsDone(1L);
+        TaskResponse completedTask = taskService.markTaskAsDone(1L, );
         assertEquals(TaskStatus.DONE, completedTask.getStatus());
         verify(taskRepository).findById(1L);
         verify(taskRepository).save(any(Task.class));

@@ -152,7 +152,7 @@ class TaskControllerTest {
     @Test
     void markAsDone_shouldReturnOKAndTaskResponse() throws Exception {
         TaskResponse task = createSampleTaskResponse(1L, "Task", "task Desc", true);
-        when(taskService.markTaskAsDone(1L)).thenReturn(task);
+        when(taskService.markTaskAsDone(1L, )).thenReturn(task);
 
         mockMvc.perform(patch("/tasks/1"))
                 .andExpect(status().isOk())
@@ -161,7 +161,7 @@ class TaskControllerTest {
 
     @Test
     void markAsDone_shouldReturnNotFound() throws Exception {
-        when(taskService.markTaskAsDone(1L)).thenThrow(TaskNotFoundException.class);
+        when(taskService.markTaskAsDone(1L, )).thenThrow(TaskNotFoundException.class);
 
         mockMvc.perform(patch("/tasks/1"))
                 .andExpect(status().isNotFound());

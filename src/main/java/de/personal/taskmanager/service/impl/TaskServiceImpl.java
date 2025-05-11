@@ -5,11 +5,12 @@ import de.personal.taskmanager.dto.task.TaskRequest;
 import de.personal.taskmanager.dto.task.TaskResponse;
 import de.personal.taskmanager.exception.TaskNotFoundException;
 import de.personal.taskmanager.message.TaskEventProducer;
+import de.personal.taskmanager.model.AppUser;
 import de.personal.taskmanager.model.Task;
 import de.personal.taskmanager.model.TaskStatus;
-import de.personal.taskmanager.respository.TaskCommentRepository;
 import de.personal.taskmanager.respository.TaskRepository;
 import de.personal.taskmanager.service.TaskService;
+import de.personal.taskmanager.service.UserStatsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +24,7 @@ public class TaskServiceImpl implements TaskService {
     private final TaskRepository taskRepository;
 
     private final TaskEventProducer taskEventProducer;
-    private final TaskCommentRepository taskCommentRepository;
+    private final UserStatsService userStatsService;
 
     /**
      * Create a new task based on the provided request.
@@ -127,18 +128,22 @@ public class TaskServiceImpl implements TaskService {
      * Mark a task as completed (status DONE).
      * Also publishes a task completion event.
      *
-     * @param id the ID of the task to mark as done
+     * @param id   the ID of the task to mark as done
+     * @param user
      * @return the updated task as a response DTO
      * @throws TaskNotFoundException if the task does not exist
      */
     @Override
-    public TaskResponse markTaskAsDone(Long id) {
+    public TaskResponse markTaskAsDone(Long id, AppUser user) {
         Task task = taskRepository.findById(id).orElseThrow(
                 () -> new TaskNotFoundException(id)
         );
 
         task.setStatus(TaskStatus.DONE);
         Task savedTask = taskRepository.save(task);
+
+        userStatsService.handleTaskCompletion(user);
+
         String message = String.format("Task completed: ID=%d, description=%s", task.getId(), task.getDescription());
         taskEventProducer.sendTaskCompletedMessage(message); // publish an event when the task is updated to database
         return TaskMapper.toTaskResponse(savedTask);

@@ -7,7 +7,6 @@ import de.personal.taskmanager.model.Task;
 import de.personal.taskmanager.model.TaskComment;
 import de.personal.taskmanager.respository.TaskCommentRepository;
 import de.personal.taskmanager.respository.TaskRepository;
-import de.personal.taskmanager.respository.UserRepository;
 import de.personal.taskmanager.service.TaskCommentService;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -26,7 +25,6 @@ import java.time.LocalTime;
 public class TaskCommentServiceImpl implements TaskCommentService {
     private final TaskCommentRepository commentRepository;
     private final TaskRepository taskRepository;
-    private final UserRepository userRepository;
 
     @Override
     public TaskCommentResponse addComment(TaskCommentRequest request) {
