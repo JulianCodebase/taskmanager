@@ -15,7 +15,7 @@ import java.util.Map;
  */
 @Getter
 @Setter
-@JsonInclude(JsonInclude.Include.NON_NULL) // Tell Jackson to excludes null property from the serialized JSON
+@JsonInclude(JsonInclude.Include.NON_NULL) // Tell Jackson to exclude null property from the serialized JSON
 public class CustomErrorResponse {
     private int status;
     private String message;
