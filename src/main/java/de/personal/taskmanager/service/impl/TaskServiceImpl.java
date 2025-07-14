@@ -145,7 +145,7 @@ public class TaskServiceImpl implements TaskService {
         userStatsService.handleTaskCompletion(user);
 
         String message = String.format("Task completed: ID=%d, description=%s", task.getId(), task.getDescription());
-        taskEventProducer.sendTaskCompletedMessage(message); // publish an event when the task is updated to database
+        taskEventProducer.sendTaskCompletedMessage(message); // publish an event when the task is updated to the database
         return TaskMapper.toTaskResponse(savedTask);
     }
 
