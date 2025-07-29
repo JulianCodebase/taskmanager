@@ -21,7 +21,7 @@
         <module>user-service</module>
         <module>task-service</module>
         <module>notification-service</module>
-        <module>common</module>
+        <module>common-service</module>
     </modules>
 
     <properties>
