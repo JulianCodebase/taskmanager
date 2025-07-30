@@ -1,8 +1,7 @@
 package de.personal.taskservice.service;
 
-import de.personal.taskmanager.dto.task.TaskRequest;
-import de.personal.taskmanager.dto.task.TaskResponse;
-import de.personal.taskmanager.model.AppUser;
+import de.personal.taskservice.dto.TaskRequest;
+import de.personal.taskservice.dto.TaskResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -21,7 +20,7 @@ public interface TaskService {
 
     int restoreAllSoftDeletedTasks();
 
-    TaskResponse markTaskAsDone(Long id, AppUser user);
+    TaskResponse markTaskAsDone(Long id, Long userId);
 
     void forceDeleteTask(Long id);
 }

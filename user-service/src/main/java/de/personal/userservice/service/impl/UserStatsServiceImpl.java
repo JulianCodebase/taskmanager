@@ -1,9 +1,9 @@
 package de.personal.userservice.service.impl;
 
-import de.personal.taskmanager.model.AppUser;
-import de.personal.taskmanager.model.UserStats;
-import de.personal.taskmanager.respository.UserStatsRepository;
-import de.personal.taskmanager.service.UserStatsService;
+import de.personal.userservice.model.AppUser;
+import de.personal.userservice.model.UserStats;
+import de.personal.userservice.repository.UserStatsRepository;
+import de.personal.userservice.service.UserStatsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

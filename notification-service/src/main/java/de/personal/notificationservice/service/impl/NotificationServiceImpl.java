@@ -1,6 +1,6 @@
 package de.personal.notificationservice.service.impl;
 
-import de.personal.taskmanager.service.NotificationService;
+import de.personal.notificationservice.service.NotificationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 

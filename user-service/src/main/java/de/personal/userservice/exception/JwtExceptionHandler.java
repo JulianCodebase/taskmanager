@@ -1,6 +1,6 @@
-package de.personal.taskservice.exception;
+package de.personal.userservice.exception;
 
-import de.personal.taskmanager.common.SecurityErrorWriter;
+import de.personal.userservice.security.SecurityErrorWriter;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

@@ -1,6 +1,6 @@
 package de.personal.notificationservice.messaging;
 
-import de.personal.taskmanager.service.impl.NotificationServiceImpl;
+import de.personal.notificationservice.service.impl.NotificationServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.ConsumerRecord;

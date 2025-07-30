@@ -1,6 +1,6 @@
 package de.personal.taskservice.repository;
 
-import de.personal.taskmanager.model.Task;
+import de.personal.taskservice.model.Task;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

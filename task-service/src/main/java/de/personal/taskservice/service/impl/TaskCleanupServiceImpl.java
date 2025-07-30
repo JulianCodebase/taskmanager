@@ -1,9 +1,8 @@
 package de.personal.taskservice.service.impl;
 
-import de.personal.taskmanager.annotation.AuditLog;
-import de.personal.taskmanager.model.Task;
-import de.personal.taskmanager.respository.TaskRepository;
-import de.personal.taskmanager.service.TaskCleanupService;
+import de.personal.taskservice.model.Task;
+import de.personal.taskservice.repository.TaskRepository;
+import de.personal.taskservice.service.TaskCleanupService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;

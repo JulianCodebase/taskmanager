@@ -1,8 +1,9 @@
 package de.personal.taskservice.mapper;
 
-import de.personal.taskmanager.dto.task.TaskRequest;
-import de.personal.taskmanager.dto.task.TaskResponse;
-import de.personal.taskmanager.model.Task;
+
+import de.personal.taskservice.dto.TaskRequest;
+import de.personal.taskservice.dto.TaskResponse;
+import de.personal.taskservice.model.Task;
 
 public class TaskMapper {
     public static Task toTaskEntity(TaskRequest taskRequest) {

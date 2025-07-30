@@ -1,8 +1,8 @@
 package de.personal.commentservice.controller;
 
-import de.personal.taskmanager.dto.task.TaskCommentRequest;
-import de.personal.taskmanager.dto.task.TaskCommentResponse;
-import de.personal.taskmanager.service.TaskCommentService;
+import de.personal.commentservice.dto.CommentRequest;
+import de.personal.commentservice.dto.CommentResponse;
+import de.personal.commentservice.service.CommentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -18,14 +18,14 @@ import java.time.LocalDate;
 @RestController
 @RequestMapping("/api/comments")
 @RequiredArgsConstructor
-public class TaskCommentController {
-    private final TaskCommentService commentService;
+public class CommentController {
+    private final CommentService commentService;
 
     /**
      * Creates a new comment on a task
      */
     @PostMapping
-    public ResponseEntity<TaskCommentResponse> addComment(@RequestBody @Valid TaskCommentRequest request) {
+    public ResponseEntity<CommentResponse> addComment(@RequestBody @Valid CommentRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(commentService.addComment(request));
     }
 
@@ -33,7 +33,7 @@ public class TaskCommentController {
      * Retrieves filtered comments
      */
     @GetMapping("/task/{taskId}")
-    public ResponseEntity<Page<TaskCommentResponse>> getCommentsByTask(
+    public ResponseEntity<Page<CommentResponse>> getCommentsByTask(
             @PathVariable Long taskId,
             @RequestParam(required = false) String keyword,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate after,
@@ -49,8 +49,8 @@ public class TaskCommentController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<TaskCommentResponse> updateComment(@PathVariable("id") Long commentId,
-                                                             @RequestBody TaskCommentRequest request) {
+    public ResponseEntity<CommentResponse> updateComment(@PathVariable("id") Long commentId,
+                                                             @RequestBody CommentRequest request) {
         return ResponseEntity.ok(commentService.updateComment(commentId, request));
     }
 }

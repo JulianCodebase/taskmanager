@@ -1,5 +1,7 @@
 package de.personal.taskservice.messaging;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
@@ -15,12 +17,18 @@ public class TaskEventProducer {
 
     private final KafkaTemplate<String, String> kafkaTemplate;
     private static final String TOPIC = "task-events";
+    private final ObjectMapper objectMapper;
 
     /**
-     * Publishes a task completion message to the Kafka topic.
+     * Publishes a task completion event to the Kafka topic.
      */
-    public void sendTaskCompletedMessage(String message) {
-        log.info(">>> Sending task even to Kafka: {}", message);
-        kafkaTemplate.send(TOPIC, message);
+    public void sendTaskCompletedMessage(TaskCompletedEvent event) {
+        try {
+            String jsonMessage = objectMapper.writeValueAsString(event);
+            log.info(">>> Sending task even to Kafka: {}", jsonMessage);
+            kafkaTemplate.send(TOPIC, jsonMessage);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

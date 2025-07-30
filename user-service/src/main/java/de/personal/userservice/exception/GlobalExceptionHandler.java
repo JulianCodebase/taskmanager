@@ -1,6 +1,6 @@
 package de.personal.userservice.exception;
 
-import de.personal.taskmanager.common.SecurityErrorWriter;
+import de.personal.userservice.security.SecurityErrorWriter;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,7 +35,7 @@ public class GlobalExceptionHandler {
         securityErrorWriter.writeJson(response, HttpServletResponse.SC_FORBIDDEN, exception.getMessage());
     }
 
-    @ExceptionHandler({UsernameNotFoundException.class, TaskNotFoundException.class})
+    @ExceptionHandler(UsernameNotFoundException.class)
     public void handleNotFoundErrors(HttpServletResponse response,
                                      Exception exception) {
         securityErrorWriter.writeJson(response, HttpServletResponse.SC_NOT_FOUND, exception.getMessage());

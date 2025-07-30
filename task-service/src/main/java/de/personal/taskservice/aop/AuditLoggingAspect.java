@@ -1,8 +1,6 @@
 package de.personal.taskservice.aop;
 
-import de.personal.taskmanager.annotation.AuditLog;
-import de.personal.taskmanager.model.AuditLogRecord;
-import de.personal.taskmanager.respository.AuditLogRepository;
+import de.personal.taskservice.repository.AuditLogRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;

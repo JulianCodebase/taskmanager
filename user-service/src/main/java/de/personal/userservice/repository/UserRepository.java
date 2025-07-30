@@ -1,6 +1,6 @@
 package de.personal.userservice.repository;
 
-import de.personal.taskmanager.model.AppUser;
+import de.personal.userservice.model.AppUser;
 import jakarta.validation.constraints.NotBlank;
 import org.springframework.data.jpa.repository.JpaRepository;
 

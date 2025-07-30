@@ -1,6 +1,7 @@
 package de.personal.userservice.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.personal.common.dto.CustomErrorResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

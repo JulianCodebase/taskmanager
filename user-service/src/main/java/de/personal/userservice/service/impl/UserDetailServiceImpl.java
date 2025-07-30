@@ -1,7 +1,7 @@
 package de.personal.userservice.service.impl;
 
-import de.personal.taskmanager.model.AppUser;
-import de.personal.taskmanager.respository.UserRepository;
+import de.personal.userservice.model.AppUser;
+import de.personal.userservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

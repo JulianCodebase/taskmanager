@@ -1,10 +1,8 @@
 package de.personal.taskservice.controller;
 
-import de.personal.taskmanager.annotation.AuditLog;
-import de.personal.taskmanager.dto.task.TaskRequest;
-import de.personal.taskmanager.dto.task.TaskResponse;
-import de.personal.taskmanager.model.AppUser;
-import de.personal.taskmanager.service.TaskService;
+import de.personal.taskservice.dto.TaskRequest;
+import de.personal.taskservice.dto.TaskResponse;
+import de.personal.taskservice.service.TaskService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;

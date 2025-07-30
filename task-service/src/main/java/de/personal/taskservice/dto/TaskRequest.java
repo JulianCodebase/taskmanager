@@ -1,8 +1,8 @@
 package de.personal.taskservice.dto;
 
 
-import de.personal.taskmanager.model.TaskPriority;
-import de.personal.taskmanager.model.TaskStatus;
+import de.personal.taskservice.model.TaskPriority;
+import de.personal.taskservice.model.TaskStatus;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;

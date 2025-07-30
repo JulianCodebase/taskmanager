@@ -1,7 +1,7 @@
 package de.personal.userservice.config;
 
-import de.personal.taskmanager.model.AppUser;
-import de.personal.taskmanager.respository.UserRepository;
+import de.personal.userservice.model.AppUser;
+import de.personal.userservice.repository.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.domain.AuditorAware;

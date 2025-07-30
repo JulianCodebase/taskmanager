@@ -1,9 +1,9 @@
 package de.personal.userservice.controller;
 
-import de.personal.taskmanager.dto.auth.AuthRegisterRequest;
-import de.personal.taskmanager.dto.auth.AuthRequest;
-import de.personal.taskmanager.dto.auth.AuthResponse;
-import de.personal.taskmanager.service.AuthService;
+import de.personal.userservice.dto.AuthRegisterRequest;
+import de.personal.userservice.dto.AuthRequest;
+import de.personal.userservice.dto.AuthResponse;
+import de.personal.userservice.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

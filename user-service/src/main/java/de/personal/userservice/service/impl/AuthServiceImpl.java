@@ -1,12 +1,12 @@
 package de.personal.userservice.service.impl;
 
-import de.personal.taskmanager.dto.auth.AuthRegisterRequest;
-import de.personal.taskmanager.dto.auth.AuthRequest;
-import de.personal.taskmanager.dto.auth.AuthResponse;
-import de.personal.taskmanager.model.AppUser;
-import de.personal.taskmanager.respository.UserRepository;
-import de.personal.taskmanager.security.JwtUtil;
-import de.personal.taskmanager.service.AuthService;
+import de.personal.userservice.dto.AuthRegisterRequest;
+import de.personal.userservice.dto.AuthRequest;
+import de.personal.userservice.dto.AuthResponse;
+import de.personal.userservice.model.AppUser;
+import de.personal.userservice.repository.UserRepository;
+import de.personal.userservice.security.JwtUtil;
+import de.personal.userservice.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -27,12 +27,12 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse login(AuthRequest authRequest) {
-        String username = authRequest.getUsername();
+        String username = authRequest.username();
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             username,
-                            authRequest.getPassword()));
+                            authRequest.password()));
         } catch (BadCredentialsException e) {
             return new AuthResponse(username, null, "Invalid username or password");
         }
@@ -44,14 +44,14 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public AuthResponse register(AuthRegisterRequest registerRequest) {
-        if (userRepository.existsByUsername(registerRequest.getUsername())) {
-            return new AuthResponse(registerRequest.getUsername(), null, "User already exists");
+        if (userRepository.existsByUsername(registerRequest.username())) {
+            return new AuthResponse(registerRequest.username(), null, "User already exists");
         }
 
         AppUser user = new AppUser();
-        user.setUsername(registerRequest.getUsername());
-        user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        user.setUserRole(registerRequest.getUserRole());
+        user.setUsername(registerRequest.username());
+        user.setPassword(passwordEncoder.encode(registerRequest.password()));
+        user.setUserRole(registerRequest.userRole());
         userRepository.save(user);
         return new AuthResponse(user.getUsername(), user.getUserRole(), "User successfully created");
     }

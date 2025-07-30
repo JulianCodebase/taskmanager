@@ -1,7 +1,7 @@
 package de.personal.userservice.repository;
 
-import de.personal.taskmanager.model.AppUser;
-import de.personal.taskmanager.model.UserStats;
+import de.personal.userservice.model.AppUser;
+import de.personal.userservice.model.UserStats;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

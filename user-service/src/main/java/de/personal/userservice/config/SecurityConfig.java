@@ -1,8 +1,8 @@
 package de.personal.userservice.config;
 
-import de.personal.taskmanager.exception.CustomAccessDeniedHandler;
-import de.personal.taskmanager.exception.CustomAuthenticationEntryPoint;
-import de.personal.taskmanager.security.JwtFilter;
+import de.personal.userservice.exception.CustomAccessDeniedHandler;
+import de.personal.userservice.security.CustomAuthenticationEntryPoint;
+import de.personal.userservice.security.JwtFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

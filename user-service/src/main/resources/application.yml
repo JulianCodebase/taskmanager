@@ -1,1 +1,16 @@
-spring.application.name=user-service
+server:
+  port: 8081
+spring:
+  application:
+    name: user-service
+  datasource:
+    url: jdbc:mysql://localhost:3307/userdb
+    username: root
+    password: root
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+
+app-key: inNFm5S1dyyYrzN27ji319nn12d12fA2f2v1qTg34fa34wc1dd221w2b122vk2w1jxTyn22ct2pgw7afVJ===

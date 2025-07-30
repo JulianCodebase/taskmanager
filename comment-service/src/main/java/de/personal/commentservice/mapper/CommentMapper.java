@@ -1,21 +1,21 @@
 package de.personal.commentservice.mapper;
 
-import de.personal.taskmanager.dto.task.TaskCommentRequest;
-import de.personal.taskmanager.dto.task.TaskCommentResponse;
-import de.personal.taskmanager.model.Task;
-import de.personal.taskmanager.model.TaskComment;
+
+import de.personal.commentservice.dto.CommentRequest;
+import de.personal.commentservice.dto.CommentResponse;
+import de.personal.commentservice.model.Comment;
 
 public class CommentMapper {
-    public static TaskComment toTaskComment(TaskCommentRequest commentRequest, Task task) {
-        TaskComment taskComment = new TaskComment();
-        taskComment.setTask(task);
-        taskComment.setContent(commentRequest.getContent());
+    public static Comment toComment(CommentRequest commentRequest, Task task) {
+        Comment Comment = new Comment();
+        Comment.setTask(task);
+        Comment.setContent(commentRequest.getContent());
 
-        return taskComment;
+        return Comment;
     }
 
-    public static TaskCommentResponse toCommentResponse(TaskComment comment) {
-        TaskCommentResponse commentResponse = new TaskCommentResponse();
+    public static CommentResponse toCommentResponse(Comment comment) {
+        CommentResponse commentResponse = new CommentResponse();
         commentResponse.setId(comment.getId());
         commentResponse.setContent(comment.getContent());
         commentResponse.setCreatedAt(comment.getCreatedAt());

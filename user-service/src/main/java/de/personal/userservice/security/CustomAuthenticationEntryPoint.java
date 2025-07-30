@@ -1,6 +1,5 @@
 package de.personal.userservice.security;
 
-import de.personal.taskmanager.common.SecurityErrorWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
