@@ -43,7 +43,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
     // Skip processing for endpoints under /auth/**
     @Override
-    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+    protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getServletPath();
         return antPathMatcher.match("/auth/**", path);
     }

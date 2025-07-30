@@ -1,5 +1,6 @@
 package de.personal.taskservice.controller;
 
+import de.personal.common.AuditLog;
 import de.personal.taskservice.dto.TaskRequest;
 import de.personal.taskservice.dto.TaskResponse;
 import de.personal.taskservice.service.TaskService;
@@ -12,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -53,8 +55,9 @@ public class TaskController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<TaskResponse> markTaskAsDone(@PathVariable Long id,
-                                                       @AuthenticationPrincipal AppUser user) {
-        return ResponseEntity.ok(taskService.markTaskAsDone(id, user));
+                                                       @AuthenticationPrincipal Jwt jwt) {
+        String username = jwt.getClaim("sub");
+        return ResponseEntity.ok(taskService.markTaskAsDone(id, username));
     }
 
     @DeleteMapping("/{id}")

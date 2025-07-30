@@ -126,13 +126,13 @@ public class TaskServiceImpl implements TaskService {
      * Mark a task as completed (status DONE).
      * Also publishes a task completion event.
      *
-     * @param id the ID of the task to mark as done
-     * @param userId
+     * @param id       the ID of the task to mark as done
+     * @param username
      * @return the updated task as a response DTO
      * @throws TaskNotFoundException if the task does not exist
      */
     @Override
-    public TaskResponse markTaskAsDone(Long id, Long userId) {
+    public TaskResponse markTaskAsDone(Long id, String username) {
         Task task = taskRepository.findById(id).orElseThrow(
                 () -> new TaskNotFoundException(id)
         );
@@ -140,7 +140,7 @@ public class TaskServiceImpl implements TaskService {
         task.setStatus(TaskStatus.DONE);
         Task savedTask = taskRepository.save(task);
 
-        TaskCompletedEvent event = new TaskCompletedEvent(task.getId(), userId, task.getDescription());
+        TaskCompletedEvent event = new TaskCompletedEvent(task.getId(), username, task.getDescription());
         taskEventProducer.sendTaskCompletedMessage(event);
         return TaskMapper.toTaskResponse(savedTask);
     }

@@ -20,7 +20,7 @@ public interface TaskService {
 
     int restoreAllSoftDeletedTasks();
 
-    TaskResponse markTaskAsDone(Long id, Long userId);
+    TaskResponse markTaskAsDone(Long id, String username);
 
     void forceDeleteTask(Long id);
 }

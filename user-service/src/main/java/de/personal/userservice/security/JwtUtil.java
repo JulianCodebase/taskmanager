@@ -13,7 +13,6 @@ import java.util.function.Function;
 
 @Component
 public class JwtUtil {
-    // TODO Temporary key for testing; use env variable or Vault in production
     @Value("${app-key}")
     private String SECRET_KEY; // signing key used to generate or parse a token
 
