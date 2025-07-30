@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.FieldError;
@@ -33,6 +34,11 @@ public class GlobalExceptionHandler {
     public void handleAccessErrors(HttpServletResponse response,
                                    Exception exception) {
         securityErrorWriter.writeJson(response, HttpServletResponse.SC_FORBIDDEN, exception.getMessage());
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public void handBadCredentialsException(HttpServletResponse response, BadCredentialsException exception) {
+        securityErrorWriter.writeJson(response, HttpServletResponse.SC_UNAUTHORIZED, exception.getMessage());
     }
 
     @ExceptionHandler(UsernameNotFoundException.class)

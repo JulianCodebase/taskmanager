@@ -34,7 +34,7 @@ public class AuthServiceImpl implements AuthService {
                             username,
                             authRequest.password()));
         } catch (BadCredentialsException e) {
-            return new AuthResponse(username, null, "Invalid username or password");
+            throw new BadCredentialsException("Invalid username or password");
         }
 
         AppUser user = userRepository.findByUsername(username)
