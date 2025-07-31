@@ -1,5 +1,6 @@
 package de.personal.userservice.security;
 
+import de.personal.common.util.JwtUtil;
 import de.personal.userservice.exception.JwtExceptionHandler;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

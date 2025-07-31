@@ -1,5 +1,7 @@
 package de.personal.taskservice.service.impl;
 
+import de.personal.taskservice.annotation.AuditLog;
+import de.personal.taskservice.messaging.TaskEventProducer;
 import de.personal.taskservice.model.Task;
 import de.personal.taskservice.repository.TaskRepository;
 import de.personal.taskservice.service.TaskCleanupService;
@@ -15,6 +17,7 @@ import java.util.List;
 public class TaskCleanupServiceImpl implements TaskCleanupService {
 
     private final TaskRepository taskRepository;
+    private final TaskEventProducer taskEventProducer;
 
     @Override
     @AuditLog(desc = "Scheduled Cleanup of Old Deleted Tasks")
@@ -25,6 +28,9 @@ public class TaskCleanupServiceImpl implements TaskCleanupService {
         // Deleting tasks automatically deletes their associated comments
         // because of cascade = ALL and orphanRemoval = true
         taskRepository.deleteAll(tasksToDelete);
+
+        // Publishes deletion event for each task
+        tasksToDelete.forEach(task -> taskEventProducer.sendTaskDeletedEvent(task.getId()));
 
         return tasksToDelete.size();
     }

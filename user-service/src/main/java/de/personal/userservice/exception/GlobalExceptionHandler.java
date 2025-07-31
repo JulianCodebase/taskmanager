@@ -1,6 +1,6 @@
 package de.personal.userservice.exception;
 
-import de.personal.userservice.security.SecurityErrorWriter;
+import de.personal.common.util.SecurityErrorWriter;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

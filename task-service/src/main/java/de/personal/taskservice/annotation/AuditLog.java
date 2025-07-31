@@ -1,4 +1,4 @@
-package de.personal.common;
+package de.personal.taskservice.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

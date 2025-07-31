@@ -1,10 +1,8 @@
-package de.personal.userservice.security;
+package de.personal.common.util;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import de.personal.common.dto.CustomErrorResponse;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Map;
@@ -12,10 +10,12 @@ import java.util.Map;
 /**
  * Writes consistent JSON error responses for security-related exceptions.
  */
-@Component
-@RequiredArgsConstructor
 public class SecurityErrorWriter {
     private final ObjectMapper objectMapper;
+
+    public SecurityErrorWriter(ObjectMapper objectMapper) {
+        this.objectMapper = objectMapper;
+    }
 
     public void writeJson(HttpServletResponse response, int status, String message) {
         writeJson(response, status, message, null);

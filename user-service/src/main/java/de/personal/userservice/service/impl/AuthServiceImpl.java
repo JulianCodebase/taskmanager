@@ -5,7 +5,7 @@ import de.personal.userservice.dto.AuthRequest;
 import de.personal.userservice.dto.AuthResponse;
 import de.personal.userservice.model.AppUser;
 import de.personal.userservice.repository.UserRepository;
-import de.personal.userservice.security.JwtUtil;
+import de.personal.userservice.security.JwtGenerator;
 import de.personal.userservice.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class AuthServiceImpl implements AuthService {
     private final AuthenticationManager authenticationManager;
-    private final JwtUtil jwtUtil;
+    private final JwtGenerator jwtGenerator;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
@@ -39,7 +39,7 @@ public class AuthServiceImpl implements AuthService {
 
         AppUser user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found after successful authentication: " + username));
-        return new AuthResponse(username, user.getUserRole(), "Login successful. Token: " + jwtUtil.generateToken(username));
+        return new AuthResponse(username, user.getUserRole(), "Login successful. Token: " + jwtGenerator.generateToken(username));
     }
 
     @Override
@@ -52,7 +52,7 @@ public class AuthServiceImpl implements AuthService {
         user.setUsername(registerRequest.username());
         user.setPassword(passwordEncoder.encode(registerRequest.password()));
         user.setUserRole(registerRequest.userRole());
-        userRepository.save(user);
-        return new AuthResponse(user.getUsername(), user.getUserRole(), "User successfully created");
+        AppUser savedUser = userRepository.save(user);
+        return new AuthResponse(savedUser.getUsername(), savedUser.getUserRole(), "User successfully created");
     }
 }

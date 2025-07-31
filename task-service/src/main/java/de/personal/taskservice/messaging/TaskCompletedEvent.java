@@ -6,12 +6,12 @@ package de.personal.taskservice.messaging;
  * such as notification-service or user-service.
  *
  * @param taskId      the ID of the completed task
- * @param userId      the ID of the user who completed the task
+ * @param username    the username of the user who completed the task
  * @param description a brief description of the completed task
  */
-public record TaskCompletedEvent(
+public record TaskCompletedEvent (
         Long taskId,
-        Long userId,
+        String username,
         String description
-) {
+) implements TaskEvent {
 }

@@ -141,7 +141,7 @@ public class TaskServiceImpl implements TaskService {
         Task savedTask = taskRepository.save(task);
 
         TaskCompletedEvent event = new TaskCompletedEvent(task.getId(), username, task.getDescription());
-        taskEventProducer.sendTaskCompletedMessage(event);
+        taskEventProducer.sendTaskCompletedEvent(task.getId(), username, task.getDescription());
         return TaskMapper.toTaskResponse(savedTask);
     }
 
@@ -157,5 +157,6 @@ public class TaskServiceImpl implements TaskService {
         );
 
         taskRepository.delete(task); // deleting a task automatically deletes its comments because of cascade type
+        taskEventProducer.sendTaskDeletedEvent(task.getId());
     }
 }

@@ -22,7 +22,15 @@ public class TaskEventProducer {
     /**
      * Publishes a task completion event to the Kafka topic.
      */
-    public void sendTaskCompletedMessage(TaskCompletedEvent event) {
+    public void sendTaskCompletedEvent(Long taskId, String username, String taskDescription) {
+        sendEventToKafka(new TaskCompletedEvent(taskId, username, taskDescription));
+    }
+
+    public void sendTaskDeletedEvent(Long taskId) {
+        sendEventToKafka(new TaskDeletedEvent(taskId));
+    }
+
+    private void sendEventToKafka(TaskEvent event) {
         try {
             String jsonMessage = objectMapper.writeValueAsString(event);
             log.info(">>> Sending task even to Kafka: {}", jsonMessage);

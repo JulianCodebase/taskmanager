@@ -1,5 +1,7 @@
 package de.personal.taskservice.aop;
 
+import de.personal.taskservice.annotation.AuditLog;
+import de.personal.taskservice.model.AuditLogRecord;
 import de.personal.taskservice.repository.AuditLogRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +30,7 @@ public class AuditLoggingAspect {
     /**
      * Pointcut for any method annotated with @AuditLog.
      */
-    @Pointcut("@annotation(de.personal.taskmanager.annotation.AuditLog)")
+    @Pointcut("@annotation(de.personal.taskservice.annotation.AuditLog)")
     public void auditLogPointcut() {
     }
 

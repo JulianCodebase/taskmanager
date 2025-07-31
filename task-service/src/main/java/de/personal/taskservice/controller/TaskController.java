@@ -1,6 +1,6 @@
 package de.personal.taskservice.controller;
 
-import de.personal.common.AuditLog;
+import de.personal.taskservice.annotation.AuditLog;
 import de.personal.taskservice.dto.TaskRequest;
 import de.personal.taskservice.dto.TaskResponse;
 import de.personal.taskservice.service.TaskService;
@@ -37,7 +37,6 @@ public class TaskController {
 
     @GetMapping
     public ResponseEntity<Page<TaskResponse>> getAllTasks(
-            @RequestParam(required = false) Boolean done,
             @PageableDefault(size = 20, sort = "dueDate") Pageable pageable) {
         return ResponseEntity.ok(taskService.getAllActiveTasks(pageable));
     }
@@ -56,7 +55,7 @@ public class TaskController {
     @PatchMapping("/{id}")
     public ResponseEntity<TaskResponse> markTaskAsDone(@PathVariable Long id,
                                                        @AuthenticationPrincipal Jwt jwt) {
-        String username = jwt.getClaim("sub");
+        String username = jwt.getSubject();
         return ResponseEntity.ok(taskService.markTaskAsDone(id, username));
     }
 
