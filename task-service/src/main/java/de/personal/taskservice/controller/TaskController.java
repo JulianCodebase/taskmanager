@@ -12,10 +12,9 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.time.LocalDateTime;
 import java.util.Map;
 
@@ -54,8 +53,8 @@ public class TaskController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<TaskResponse> markTaskAsDone(@PathVariable Long id,
-                                                       @AuthenticationPrincipal Jwt jwt) {
-        String username = jwt.getSubject();
+                                                       Principal principal) {
+        String username = principal.getName();
         return ResponseEntity.ok(taskService.markTaskAsDone(id, username));
     }
 
@@ -70,6 +69,7 @@ public class TaskController {
         return ResponseEntity.ok(taskService.restoreTask(id));
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PatchMapping("/restore")
     public ResponseEntity<Map<String, Object>> restoreAllSoftDeletedTasks() {
         int restoredCount = taskService.restoreAllSoftDeletedTasks();

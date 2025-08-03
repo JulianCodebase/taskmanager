@@ -4,7 +4,6 @@ import de.personal.taskservice.dto.TaskRequest;
 import de.personal.taskservice.dto.TaskResponse;
 import de.personal.taskservice.exception.TaskNotFoundException;
 import de.personal.taskservice.mapper.TaskMapper;
-import de.personal.taskservice.messaging.TaskCompletedEvent;
 import de.personal.taskservice.messaging.TaskEventProducer;
 import de.personal.taskservice.model.Task;
 import de.personal.taskservice.model.TaskStatus;
@@ -49,10 +48,10 @@ public class TaskServiceImpl implements TaskService {
         Task existingTask = taskRepository.findById(id)
                 .orElseThrow(() -> new TaskNotFoundException(id));
 
-        existingTask.setTitle(taskRequest.getTitle());
-        existingTask.setDescription(taskRequest.getDescription());
-        existingTask.setPriority(taskRequest.getPriority());
-        existingTask.setStatus(taskRequest.getStatus());
+        existingTask.setTitle(taskRequest.title());
+        existingTask.setDescription(taskRequest.description());
+        existingTask.setPriority(taskRequest.priority());
+        existingTask.setStatus(taskRequest.status());
 
         Task savedTask = taskRepository.save(existingTask);
 
@@ -127,7 +126,7 @@ public class TaskServiceImpl implements TaskService {
      * Also publishes a task completion event.
      *
      * @param id       the ID of the task to mark as done
-     * @param username
+     * @param username the username to identify a user
      * @return the updated task as a response DTO
      * @throws TaskNotFoundException if the task does not exist
      */
@@ -140,7 +139,6 @@ public class TaskServiceImpl implements TaskService {
         task.setStatus(TaskStatus.DONE);
         Task savedTask = taskRepository.save(task);
 
-        TaskCompletedEvent event = new TaskCompletedEvent(task.getId(), username, task.getDescription());
         taskEventProducer.sendTaskCompletedEvent(task.getId(), username, task.getDescription());
         return TaskMapper.toTaskResponse(savedTask);
     }
