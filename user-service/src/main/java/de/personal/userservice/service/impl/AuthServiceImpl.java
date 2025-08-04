@@ -39,7 +39,7 @@ public class AuthServiceImpl implements AuthService {
 
         AppUser user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found after successful authentication: " + username));
-        return new AuthResponse(username, user.getUserRole(), "Login successful. Token: " + jwtGenerator.generateToken(username));
+        return new AuthResponse(username, user.getUserRole(), "Login successful. Token: " + jwtGenerator.generateToken(username, user.getUserRole()));
     }
 
     @Override

@@ -1,5 +1,6 @@
 package de.personal.userservice.model;
 
+import de.personal.common.model.UserRole;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;

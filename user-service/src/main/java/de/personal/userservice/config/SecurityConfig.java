@@ -1,9 +1,13 @@
 package de.personal.userservice.config;
 
+import de.personal.common.exception.JwtExceptionHandler;
+import de.personal.common.security.CustomAuthenticationEntryPoint;
+import de.personal.common.security.JwtFilter;
+import de.personal.common.util.JwtUtil;
+import de.personal.common.util.SecurityErrorWriter;
 import de.personal.userservice.exception.CustomAccessDeniedHandler;
-import de.personal.userservice.security.CustomAuthenticationEntryPoint;
-import de.personal.userservice.security.JwtFilter;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -24,12 +28,24 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final JwtFilter jwtFilter;
-    private final CustomAccessDeniedHandler customAccessDeniedHandler;
-    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+    @Value("${app-key}")
+    private String jwtSigningKey;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public JwtUtil jwtUtil() {
+        return new JwtUtil(jwtSigningKey);
+    }
+
+    @Bean
+    public JwtFilter jwtFilter(JwtUtil jwtUtil, JwtExceptionHandler jwtExceptionHandler) {
+        return new JwtFilter(jwtUtil, jwtExceptionHandler);
+    }
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http,
+                                                   JwtFilter jwtFilter,
+                                                   CustomAccessDeniedHandler customAccessDeniedHandler,
+                                                   CustomAuthenticationEntryPoint customAuthenticationEntryPoint) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable) // Disable CSRF for simplicity in stateless JWT
                 .exceptionHandling(configurer -> configurer
                         .authenticationEntryPoint(customAuthenticationEntryPoint)
@@ -53,5 +69,20 @@ public class SecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
+    }
+
+    @Bean
+    public CustomAuthenticationEntryPoint customAuthenticationEntryPoint(SecurityErrorWriter securityErrorWriter) {
+        return new CustomAuthenticationEntryPoint(securityErrorWriter);
+    }
+
+    @Bean
+    public CustomAccessDeniedHandler customAccessDeniedHandler(SecurityErrorWriter securityErrorWriter) {
+        return new CustomAccessDeniedHandler(securityErrorWriter);
+    }
+
+    @Bean
+    public JwtExceptionHandler jwtExceptionHandler(SecurityErrorWriter securityErrorWriter) {
+        return new JwtExceptionHandler(securityErrorWriter);
     }
 }

@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 public interface TaskRepository extends JpaRepository<Task, Long> {
     boolean existsByTitleAndDueDate(String title, LocalDate dueDate);
@@ -38,4 +39,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     @Modifying
     @Query("UPDATE Task t SET t.deleted = false, t.deletedAt = NULL WHERE t.deleted = true")
     int restoreSoftDeletedTasks();
+
+    Optional<Task> findByIdAndDeletedFalse(Long id);
 }

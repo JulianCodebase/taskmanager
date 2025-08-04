@@ -1,10 +1,10 @@
 package de.personal.userservice.service.impl;
 
+import de.personal.common.model.UserRole;
 import de.personal.userservice.dto.AuthRegisterRequest;
 import de.personal.userservice.dto.AuthRequest;
 import de.personal.userservice.dto.AuthResponse;
 import de.personal.userservice.model.AppUser;
-import de.personal.userservice.model.UserRole;
 import de.personal.userservice.repository.UserRepository;
 import de.personal.userservice.security.JwtGenerator;
 import org.junit.jupiter.api.Test;
@@ -49,7 +49,7 @@ class AuthServiceImplTest {
         user.setUserRole(UserRole.ROLE_USER);
 
         when(userRepository.findByUsername("user")).thenReturn(Optional.of(user));
-        when(jwtGenerator.generateToken("user")).thenReturn("jwt-token");
+        when(jwtGenerator.generateToken("user", UserRole.ROLE_USER)).thenReturn("jwt-token");
 
         AuthResponse response = authService.login(request);
 

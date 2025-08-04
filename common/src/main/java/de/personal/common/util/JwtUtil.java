@@ -1,5 +1,6 @@
 package de.personal.common.util;
 
+import de.personal.common.model.UserRole;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
@@ -30,6 +31,13 @@ public class JwtUtil {
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    public UserRole extractUserRole(String token) {
+        return extractClaim(token, claims -> {
+            String roleStr = claims.get(UserRole.class.getSimpleName(), String.class);
+            return UserRole.valueOf(roleStr);
+        });
     }
 
     public Date extractExpiration(String token) {

@@ -1,7 +1,7 @@
 package de.personal.userservice.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import de.personal.userservice.model.UserRole;
+import de.personal.common.model.UserRole;
 import jakarta.validation.constraints.NotBlank;
 
 public record AuthRegisterRequest(

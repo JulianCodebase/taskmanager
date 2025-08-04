@@ -1,8 +1,9 @@
-package de.personal.userservice.model;
+package de.personal.common.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
 
+// UserRole is parse across multiple services for security decisions, meaning it must be shared
 // The value must start with "ROLE_" to comply with Spring Security conventions (e.g., "ROLE_USER", "ROLE_ADMIN").
 public enum UserRole {
     ROLE_USER,

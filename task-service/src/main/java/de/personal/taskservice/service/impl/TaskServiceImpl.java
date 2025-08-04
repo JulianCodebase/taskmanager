@@ -60,7 +60,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskResponse findTaskByIdOrThrow(Long id) {
-        return taskRepository.findById(id)
+        return taskRepository.findByIdAndDeletedFalse(id) // soft-deleted tasks should not be visible
                 .map(TaskMapper::toTaskResponse)
                 .orElseThrow(() -> new TaskNotFoundException(id));
     }

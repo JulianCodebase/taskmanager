@@ -1,5 +1,6 @@
 package de.personal.userservice.security;
 
+import de.personal.common.model.UserRole;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
@@ -14,12 +15,13 @@ class JwtGeneratorTest {
 
     @BeforeEach
     void setUp() {
-        jwtGenerator = new JwtGenerator(secretKey);
+        jwtGenerator = new JwtGenerator();
+        jwtGenerator.setSECRET_KEY(secretKey);
     }
 
     @Test
     void generateToken_shouldIncludeSubject() {
-        String token = jwtGenerator.generateToken("user");
+        String token = jwtGenerator.generateToken("user", UserRole.ROLE_USER);
         String subject = Jwts.parser()
                 .verifyWith(Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey)))
                 .build()

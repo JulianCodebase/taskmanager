@@ -1,9 +1,9 @@
 package de.personal.userservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import de.personal.common.model.UserRole;
 import de.personal.userservice.dto.AuthRegisterRequest;
 import de.personal.userservice.dto.AuthRequest;
-import de.personal.userservice.model.UserRole;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

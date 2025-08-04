@@ -1,6 +1,6 @@
 package de.personal.userservice.dto;
 
-import de.personal.userservice.model.UserRole;
+import de.personal.common.model.UserRole;
 
 public record AuthResponse(
         String username,

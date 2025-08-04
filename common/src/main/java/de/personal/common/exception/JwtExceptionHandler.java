@@ -1,18 +1,18 @@
-package de.personal.userservice.exception;
+package de.personal.common.exception;
 
 import de.personal.common.util.SecurityErrorWriter;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Component;
 
 
-@Component
 @Slf4j
-@RequiredArgsConstructor
 public class JwtExceptionHandler {
     private final SecurityErrorWriter securityErrorWriter;
+
+    public JwtExceptionHandler(SecurityErrorWriter securityErrorWriter) {
+        this.securityErrorWriter = securityErrorWriter;
+    }
 
     public void handleInvalidToken(HttpServletResponse response, Exception e) {
         log.error(">>> Invalid JWT: {}", e.getMessage());

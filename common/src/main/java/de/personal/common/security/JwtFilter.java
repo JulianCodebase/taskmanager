@@ -1,44 +1,34 @@
-package de.personal.userservice.security;
+package de.personal.common.security;
 
+import de.personal.common.exception.JwtExceptionHandler;
 import de.personal.common.util.JwtUtil;
-import de.personal.userservice.exception.JwtExceptionHandler;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.validation.constraints.NotNull;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * Intercepts requests and sets authentication context if token is valid.
  */
-@Component
-@Slf4j
 public class JwtFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
-
-    @Qualifier("userDetailServiceImpl") // To avoid ambiguity when injecting this dependency
-    private final UserDetailsService userDetailsService;
-
-    private final AntPathMatcher antPathMatcher = new AntPathMatcher();
     private final JwtExceptionHandler jwtExceptionHandler;
 
-    public JwtFilter(JwtUtil jwtUtil, UserDetailsService userDetailsService, JwtExceptionHandler jwtExceptionHandler) {
+    private final AntPathMatcher antPathMatcher = new AntPathMatcher();
+
+    public JwtFilter(JwtUtil jwtUtil,
+                     JwtExceptionHandler jwtExceptionHandler) {
         this.jwtUtil = jwtUtil;
-        this.userDetailsService = userDetailsService;
         this.jwtExceptionHandler = jwtExceptionHandler;
     }
 
@@ -51,8 +41,8 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request,
-                                    @NotNull HttpServletResponse response,
-                                    @NotNull FilterChain filterChain) throws ServletException, IOException {
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) throws ServletException, IOException {
         String authHeader = request.getHeader("Authorization");
         String token = null;
         String username = null;
@@ -70,16 +60,13 @@ public class JwtFilter extends OncePerRequestFilter {
 
         // Set security context if token is valid and no auth is set yet
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = null;
-            try {
-                userDetails = userDetailsService.loadUserByUsername(username);
-            } catch (UsernameNotFoundException e) {
-                jwtExceptionHandler.handleUserNotFound(response, e);
-                return;
-            }
-            if (jwtUtil.validateToken(token, userDetails.getUsername())) {
+            if (jwtUtil.validateToken(token, username)) {
+                // Extract role string and convert to GrantedAuthority
+                String role = jwtUtil.extractUserRole(token).name();
+                var authorities = List.of((GrantedAuthority) () -> role); // lambda used as GrantedAuthority
+
                 UsernamePasswordAuthenticationToken authToken =
-                        new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                        new UsernamePasswordAuthenticationToken(username, null, authorities);
 
                 authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
