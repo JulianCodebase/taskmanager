@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 public interface CommentRepository extends JpaRepository<Comment, Long> {
     @Query("""
             SELECT comment FROM Comment comment
-            WHERE comment.task.id = :taskId
+            WHERE comment.taskId = :taskId
             AND (:keyword IS NULL OR LOWER(comment.content) LIKE LOWER(CONCAT('%', :keyword, '%')))
             AND (:after IS NULL OR comment.createdAt >= :after)
             AND (:before IS NULL OR comment.createdAt <= :before)

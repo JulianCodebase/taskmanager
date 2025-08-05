@@ -4,17 +4,13 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedBy;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @Entity
-@EntityListeners(AuditingEntityListener.class)
+@Table(name = "comments")
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -24,20 +20,34 @@ public class Comment {
     @Size(min = 5, max = 500, message = "Comment must be between 5 and 500 characters.")
     private String content;
 
-    @CreatedDate
     @Column(updatable = false, nullable = false)
     private LocalDateTime createdAt;
 
-    @LastModifiedDate
     @Column(nullable = false)
-    private LocalDateTime modifiedAt;
+    private LocalDateTime updatedAt;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "task_id", nullable = false)
-    private Task task;
+    // use primitive here, because we don't need to represent a "null" state for deletion
+    private boolean deleted;
 
-    @CreatedBy
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private AppUser author;
+    @Column(nullable = false)
+    private Long taskId; // Reference to Task (not an entity relation)
+
+    @Column(nullable = false)
+    private String authorUsername; // Reference to a User
+
+    // a JPA lifecycle callback,
+    // triggered just before an entity is inserted into the database
+    @PrePersist
+    public void prePersist() {
+        LocalDateTime now = LocalDateTime.now();
+        this.createdAt = now;
+        this.updatedAt = now;
+    }
+
+    // JPA lifecycle callback,
+    // running automatically before an entity update is flushed to the database.
+    @PreUpdate
+    public void preUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
 }

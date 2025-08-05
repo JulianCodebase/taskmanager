@@ -9,7 +9,6 @@ import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.config.Task;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -22,14 +21,14 @@ import java.time.LocalTime;
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
-    private final TaskRepository taskRepository;
 
     @Override
     public CommentResponse addComment(CommentRequest request) {
-        Task task = taskRepository.findById(request.getTaskId())
-                .orElseThrow(() -> new IllegalArgumentException("Task not found with ID: " + request.getTaskId()));
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        Comment comment = CommentMapper.toComment(request, task);
+        Comment comment = CommentMapper.toComment(request);
+        comment.setAuthorUsername(username);
+
         Comment saved = commentRepository.save(comment);
         return CommentMapper.toCommentResponse(saved);
     }
@@ -58,7 +57,7 @@ public class CommentServiceImpl implements CommentService {
     @Override
     public CommentResponse updateComment(Long commentId, CommentRequest request) {
         Comment comment = getOwnedComment(commentId);
-        comment.setContent(request.getContent());
+        comment.setContent(request.content());
         Comment updated = commentRepository.save(comment);
         return CommentMapper.toCommentResponse(updated);
     }
@@ -70,7 +69,7 @@ public class CommentServiceImpl implements CommentService {
 
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        if (!currentUsername.equals(comment.getAuthor().getUsername())) {
+        if (!currentUsername.equals(comment.getAuthorUsername())) {
             throw new AccessDeniedException("Operation forbidden because you're not the author");
         }
 

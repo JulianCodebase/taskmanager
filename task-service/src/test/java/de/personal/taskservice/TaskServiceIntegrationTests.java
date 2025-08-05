@@ -23,7 +23,6 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -65,7 +64,7 @@ class TaskServiceIntegrationTests {
         TaskRequest request = new TaskRequest(title, "desc", TaskPriority.MEDIUM,
                 TaskStatus.IN_PROGRESS, dueDate);
 
-        mockMvc.perform(post("/tasks/create").with(csrf())
+        mockMvc.perform(post("/tasks/create")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -112,7 +111,6 @@ class TaskServiceIntegrationTests {
         );
 
         mockMvc.perform(put("/tasks/{id}", task.getId())
-                        .with(csrf())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateRequest)))
                 .andExpect(status().isOk())
@@ -127,8 +125,7 @@ class TaskServiceIntegrationTests {
     void markTaskAsDone() throws Exception {
         task = taskRepository.save(task);
 
-        mockMvc.perform(patch("/tasks/{id}", task.getId())
-                        .with(csrf()))
+        mockMvc.perform(patch("/tasks/{id}", task.getId()))
                 .andExpect(jsonPath("$.status").value("DONE"));
 
         Task updated = taskRepository.findById(task.getId()).orElseThrow();
@@ -139,8 +136,7 @@ class TaskServiceIntegrationTests {
     void deleteTask() throws Exception{
         task = taskRepository.save(task);
 
-        mockMvc.perform(delete("/tasks/{id}", task.getId())
-                .with(csrf()))
+        mockMvc.perform(delete("/tasks/{id}", task.getId()))
                 .andExpect(status().isNoContent());
 
         // Active query should not find soft-deleted task
@@ -156,7 +152,7 @@ class TaskServiceIntegrationTests {
     @Test
     @WithMockUser(username = "user", roles = "USER")
     void restoreAllSoftDeletedTasks_shouldFail_withValidRole() throws Exception{
-        mockMvc.perform(patch("/tasks/restore").with(csrf()))
+        mockMvc.perform(patch("/tasks/restore"))
                 .andExpect(status().isForbidden());
     }
 
@@ -180,7 +176,7 @@ class TaskServiceIntegrationTests {
         task3.setDeletedAt(LocalDateTime.now());
         task3 = taskRepository.save(task3);
 
-        mockMvc.perform(patch("/tasks/restore").with(csrf()))
+        mockMvc.perform(patch("/tasks/restore"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.restoredCount").value(2));
 
@@ -198,8 +194,7 @@ class TaskServiceIntegrationTests {
     void forceDeleteTask() throws Exception{
         task = taskRepository.save(task);
 
-        mockMvc.perform(delete("/tasks/{id}/force", task.getId())
-                        .with(csrf()))
+        mockMvc.perform(delete("/tasks/{id}/force", task.getId()))
                 .andExpect(status().isNoContent());
 
         assertTrue(taskRepository.findById(task.getId()).isEmpty());
@@ -213,8 +208,7 @@ class TaskServiceIntegrationTests {
         task = taskRepository.save(task);
 
         // Act & Assert
-        mockMvc.perform(patch("/tasks/{id}/restore", task.getId())
-                        .with(csrf()))
+        mockMvc.perform(patch("/tasks/{id}/restore", task.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(task.getId()))
                 .andExpect(jsonPath("$.title").value("title"));

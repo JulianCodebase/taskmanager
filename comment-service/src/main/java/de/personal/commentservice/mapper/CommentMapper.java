@@ -6,22 +6,21 @@ import de.personal.commentservice.dto.CommentResponse;
 import de.personal.commentservice.model.Comment;
 
 public class CommentMapper {
-    public static Comment toComment(CommentRequest commentRequest, Task task) {
-        Comment Comment = new Comment();
-        Comment.setTask(task);
-        Comment.setContent(commentRequest.getContent());
+    public static Comment toComment(CommentRequest commentRequest) {
+        Comment comment = new Comment();
+        comment.setTaskId(commentRequest.taskId());
+        comment.setContent(commentRequest.content());
 
-        return Comment;
+        return comment;
     }
 
     public static CommentResponse toCommentResponse(Comment comment) {
-        CommentResponse commentResponse = new CommentResponse();
-        commentResponse.setId(comment.getId());
-        commentResponse.setContent(comment.getContent());
-        commentResponse.setCreatedAt(comment.getCreatedAt());
-        commentResponse.setAuthorUsername(comment.getAuthor().getUsername());
-        commentResponse.setModifiedAt(comment.getModifiedAt());
-
-        return commentResponse;
+        return new CommentResponse(
+                comment.getId(),
+                comment.getContent(),
+                comment.getAuthorUsername(),
+                comment.getCreatedAt(),
+                comment.getUpdatedAt()
+        );
     }
 }
