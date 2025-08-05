@@ -44,7 +44,7 @@ class CommentControllerTest {
 
         when(commentService.addComment(any())).thenReturn(response);
 
-        mockMvc.perform(post("/api/comments")
+        mockMvc.perform(post("/comments")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
                 .andExpect(status().isCreated())
@@ -59,7 +59,7 @@ class CommentControllerTest {
 
         when(commentService.getFilteredComments(anyLong(), any(), any(), any(), any())).thenReturn(page);
 
-        mockMvc.perform(get("/api/comments/task/1"))
+        mockMvc.perform(get("/comments/task/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].content").value("Filtered comment"))
                 .andExpect(jsonPath("$.content[0].id").value(1L));
@@ -67,7 +67,7 @@ class CommentControllerTest {
 
     @Test
     void deleteComment_shouldReturnNoContent() throws Exception {
-        mockMvc.perform(delete("/api/comments/1"))
+        mockMvc.perform(delete("/comments/1"))
                 .andExpect(status().isNoContent());
 
         verify(commentService).deleteComment(1L);
@@ -80,7 +80,7 @@ class CommentControllerTest {
 
         when(commentService.updateComment(eq(1L), any())).thenReturn(updatedResponse);
 
-        mockMvc.perform(put("/api/comments/1")
+        mockMvc.perform(put("/comments/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updateRequest)))
                 .andExpect(status().isOk())

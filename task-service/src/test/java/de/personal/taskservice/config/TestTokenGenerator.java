@@ -1,17 +1,21 @@
-package de.personal.taskservice;
+package de.personal.taskservice.config;
 
 import de.personal.common.model.UserRole;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Configuration;
 
 import javax.crypto.SecretKey;
 import java.util.Date;
 
-public class TokenGenerator {
-    private static final String SECRET_KEY = "1i20hBJJioBo===ebw01920hONeoibno1=nOblfnfjk31wnoknjno";
+@Configuration
+public class TestTokenGenerator {
+    @Value("${app-key}")
+    private String SECRET_KEY;
 
-    protected static String generateToken(String username, UserRole role) {
+    public String generateToken(String username, UserRole role) {
         byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY); // Decode the secret key
         SecretKey signingKey = Keys.hmacShaKeyFor(keyBytes);
 

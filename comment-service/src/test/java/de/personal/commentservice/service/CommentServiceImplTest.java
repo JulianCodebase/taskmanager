@@ -1,7 +1,9 @@
 package de.personal.commentservice.service;
 
+import de.personal.commentservice.client.TaskClient;
 import de.personal.commentservice.dto.CommentRequest;
 import de.personal.commentservice.dto.CommentResponse;
+import de.personal.commentservice.dto.TaskResponse;
 import de.personal.commentservice.mapper.CommentMapper;
 import de.personal.commentservice.model.Comment;
 import de.personal.commentservice.repository.CommentRepository;
@@ -33,6 +35,9 @@ class CommentServiceImplTest {
 
     @Mock
     private CommentRepository commentRepository;
+
+    @Mock
+    private TaskClient taskClient;
 
     @InjectMocks
     private CommentServiceImpl commentService;
@@ -72,6 +77,29 @@ class CommentServiceImplTest {
 
         // Assertions
         assertEquals(request.content(), response.content());
+    }
+
+    @Test
+    void addComment_shouldVerifyTaskExists() {
+        // Arrange
+        CommentRequest request = new CommentRequest("Test comment", 1L);
+        TaskResponse taskResponse = new TaskResponse(1L, "Sample Task", false);
+
+        doNothing().when(taskClient).ensureTaskExists(1L);
+
+        Comment comment = new Comment();
+        comment.setId(1L);
+        comment.setTaskId(1L);
+        comment.setContent("Test comment");
+
+        when(commentRepository.save(any(Comment.class))).thenReturn(comment);
+
+        // Act
+        CommentResponse response = commentService.addComment(request);
+
+        // Assertions
+        assertEquals(1L, response.id());
+        verify(taskClient).ensureTaskExists(1L); // ensure it was called
     }
 
     @Test

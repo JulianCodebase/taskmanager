@@ -10,12 +10,7 @@ import java.util.Map;
 /**
  * Writes consistent JSON error responses for security-related exceptions.
  */
-public class SecurityErrorWriter {
-    private final ObjectMapper objectMapper;
-
-    public SecurityErrorWriter(ObjectMapper objectMapper) {
-        this.objectMapper = objectMapper;
-    }
+public record SecurityErrorWriter(ObjectMapper objectMapper) {
 
     public void writeJson(HttpServletResponse response, int status, String message) {
         writeJson(response, status, message, null);

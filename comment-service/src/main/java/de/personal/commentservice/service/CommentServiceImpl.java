@@ -1,5 +1,6 @@
 package de.personal.commentservice.service;
 
+import de.personal.commentservice.client.TaskClient;
 import de.personal.commentservice.dto.CommentRequest;
 import de.personal.commentservice.dto.CommentResponse;
 import de.personal.commentservice.mapper.CommentMapper;
@@ -20,11 +21,14 @@ import java.time.LocalTime;
 @Service
 @RequiredArgsConstructor
 public class CommentServiceImpl implements CommentService {
+
     private final CommentRepository commentRepository;
+    private final TaskClient taskClient;
 
     @Override
     public CommentResponse addComment(CommentRequest request) {
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        taskClient.ensureTaskExists(request.taskId());
 
         Comment comment = CommentMapper.toComment(request);
         comment.setAuthorUsername(username);

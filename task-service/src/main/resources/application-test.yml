@@ -1,10 +1,11 @@
+# This configuration file is for test purposes only.
 server:
-  port: 8083
+  port: 8080
 spring:
   application:
-    name: comment-service
+    name: task-service
   datasource:
-    url: jdbc:mysql://localhost:3307/commentdb
+    url: jdbc:mysql://localhost:3307/taskdb
     username: root
     password: root
   jpa:
@@ -13,7 +14,4 @@ spring:
     show-sql: true
     database-platform: org.hibernate.dialect.MySQL8Dialect
 
-app-key: ${APP_KEY}
-task:
-  service:
-    url: http://localhost:8080
+app-key: 1i20hBJJioBo===ebw01920hONeoibno1=nOblfnfjk31wnoknjno

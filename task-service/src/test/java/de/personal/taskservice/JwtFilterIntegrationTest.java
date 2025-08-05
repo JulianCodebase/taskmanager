@@ -1,21 +1,24 @@
 package de.personal.taskservice;
 
 import de.personal.common.model.UserRole;
+import de.personal.taskservice.config.TestTokenGenerator;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
-import static de.personal.taskservice.TokenGenerator.generateToken;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @AutoConfigureMockMvc
 @SpringBootTest
-@TestPropertySource(properties = "app-key=1i20hBJJioBo===ebw01920hONeoibno1=nOblfnfjk31wnoknjno")
+@ActiveProfiles("test")
 class JwtFilterIntegrationTest {
+
+    @Autowired
+    private TestTokenGenerator tokenGenerator;
 
     @Autowired
     private MockMvc mockMvc;
@@ -23,7 +26,7 @@ class JwtFilterIntegrationTest {
     @Test
     void accessProtectedEndpoint_withValidJwt_shouldSucceed() throws Exception {
         // Given: a valid token
-        String token = generateToken("testuser", UserRole.ROLE_USER); // assuming this method exists
+        String token = tokenGenerator.generateToken("testuser", UserRole.ROLE_USER); // assuming this method exists
 
         // When & Then: perform authenticated request
         mockMvc.perform(get("/tasks")

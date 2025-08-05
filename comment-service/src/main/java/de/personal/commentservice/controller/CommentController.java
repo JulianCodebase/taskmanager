@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 
 @RestController
-@RequestMapping("/api/comments")
+@RequestMapping("/comments")
 @RequiredArgsConstructor
 public class CommentController {
     private final CommentService commentService;
