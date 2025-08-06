@@ -1,5 +1,6 @@
 package de.personal.taskservice.service.impl;
 
+import de.personal.common.messaging.TaskEventType;
 import de.personal.taskservice.dto.TaskRequest;
 import de.personal.taskservice.dto.TaskResponse;
 import de.personal.taskservice.exception.TaskNotFoundException;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -81,6 +83,7 @@ public class TaskServiceImpl implements TaskService {
     /**
      * Soft delete a task by marking it as deleted.
      * Sets {@code deleted = true} and records the deletion time.
+     * Also publishes a {@code TaskEventType.SOFT_DELETED} event.
      *
      * @param id the ID of the task to soft-delete
      * @throws TaskNotFoundException if the task does not exist
@@ -93,6 +96,7 @@ public class TaskServiceImpl implements TaskService {
         task.setDeleted(true);
         task.setDeletedAt(LocalDateTime.now());
 
+        taskEventProducer.sendTaskStatusEvent(task.getId(), TaskEventType.SOFT_DELETED);
         taskRepository.save(task);
     }
 
@@ -113,17 +117,25 @@ public class TaskServiceImpl implements TaskService {
         task.setDeleted(false);
         task.setDeletedAt(null);
         Task savedTask = taskRepository.save(task);
+        taskEventProducer.sendTaskStatusEvent(task.getId(), TaskEventType.RESTORED);
         return TaskMapper.toTaskResponse(savedTask);
     }
 
     @Override
     public int restoreAllSoftDeletedTasks() {
-        return taskRepository.restoreSoftDeletedTasks();
+        List<Task> deletedTasks = taskRepository.findAllByDeletedTrue();
+        for (Task task : deletedTasks) {
+            task.setDeleted(false);
+            task.setDeletedAt(null);
+            taskEventProducer.sendTaskStatusEvent(task.getId(), TaskEventType.RESTORED);
+        }
+
+        return taskRepository.saveAll(deletedTasks).size();
     }
 
     /**
      * Mark a task as completed (status DONE).
-     * Also publishes a task completion event.
+     * Also publishes a {@code TaskEventType.DONE} event.
      *
      * @param id       the ID of the task to mark as done
      * @param username the username to identify a user
@@ -139,7 +151,7 @@ public class TaskServiceImpl implements TaskService {
         task.setStatus(TaskStatus.DONE);
         Task savedTask = taskRepository.save(task);
 
-        taskEventProducer.sendTaskCompletedEvent(task.getId(), username, task.getDescription());
+        taskEventProducer.sendTaskStatusEvent(task.getId(), TaskEventType.DONE);
         return TaskMapper.toTaskResponse(savedTask);
     }
 
@@ -155,6 +167,6 @@ public class TaskServiceImpl implements TaskService {
         );
 
         taskRepository.delete(task); // deleting a task automatically deletes its comments because of cascade type
-        taskEventProducer.sendTaskDeletedEvent(task.getId());
+        taskEventProducer.sendTaskStatusEvent(task.getId(), TaskEventType.PERMANENTLY_DELETED);
     }
 }
