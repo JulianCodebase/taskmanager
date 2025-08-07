@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.time.LocalDateTime;
 
@@ -11,6 +12,7 @@ import java.time.LocalDateTime;
 @Setter
 @Entity
 @Table(name = "comments")
+@ToString
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,9 +27,6 @@ public class Comment {
 
     @Column(nullable = false)
     private LocalDateTime updatedAt;
-
-    // use primitive here, because we don't need to represent a "null" state for deletion
-    private boolean deleted;
 
     @Column(nullable = false)
     private Long taskId; // Reference to Task (not an entity relation)

@@ -1,5 +1,6 @@
 package de.personal.taskservice.service.impl;
 
+import de.personal.common.messaging.TaskEventType;
 import de.personal.taskservice.messaging.TaskEventProducer;
 import de.personal.taskservice.model.Task;
 import de.personal.taskservice.repository.TaskRepository;
@@ -42,8 +43,8 @@ class TaskCleanupServiceImplTest {
 
         // Assert
         verify(taskRepository).deleteAll(oldTasks);
-        verify(taskEventProducer).sendTaskDeletedEvent(task1.getId());
-        verify(taskEventProducer).sendTaskDeletedEvent(task2.getId());
+        verify(taskEventProducer).sendTaskStatusEvent(task1.getId(), TaskEventType.DELETED);
+        verify(taskEventProducer).sendTaskStatusEvent(task2.getId(), TaskEventType.DELETED);
         assertEquals(oldTasks.size(), deletedCount);
     }
 }

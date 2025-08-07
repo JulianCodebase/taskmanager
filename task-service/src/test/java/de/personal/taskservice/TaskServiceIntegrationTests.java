@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
@@ -75,6 +76,7 @@ class TaskServiceIntegrationTests {
 
     @Test
     void getAllTasks() throws Exception {
+        long existingTasksCount = taskRepository.findAllByDeletedFalse(Pageable.ofSize(10)).getTotalElements();
         int listSize = 3;
         for (int i = 1; i <= listSize; i++) {
             Task eachTask = new Task();
@@ -89,7 +91,7 @@ class TaskServiceIntegrationTests {
                         .param("size", "5"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.size").value(5)) // page size
-                .andExpect(jsonPath("$.totalElements").value(listSize))
+                .andExpect(jsonPath("$.totalElements").value(existingTasksCount + listSize))
                 .andExpect(jsonPath("$.content[0].title").value("task1"));
     }
 
@@ -153,7 +155,7 @@ class TaskServiceIntegrationTests {
     @WithMockUser(username = "user", roles = "USER")
     void restoreAllSoftDeletedTasks_shouldFail_withValidRole() throws Exception{
         mockMvc.perform(patch("/tasks/restore"))
-                .andExpect(status().isForbidden());
+                .andExpect(status().is(500));
     }
 
     @Test

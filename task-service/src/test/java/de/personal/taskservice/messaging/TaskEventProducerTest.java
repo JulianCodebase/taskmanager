@@ -1,6 +1,7 @@
 package de.personal.taskservice.messaging;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import de.personal.common.messaging.TaskEventType;
+import de.personal.common.messaging.TaskStatusEvent;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,7 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.kafka.core.KafkaTemplate;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 
@@ -17,32 +18,29 @@ import static org.mockito.Mockito.verify;
 class TaskEventProducerTest {
 
     @Mock
-    private KafkaTemplate<String, String> kafkaTemplate;
+    private KafkaTemplate<String, TaskStatusEvent> kafkaTemplate;
 
     private TaskEventProducer producer;
 
     @BeforeEach
     void setup() {
-        producer = new TaskEventProducer(kafkaTemplate, new ObjectMapper());
+        producer = new TaskEventProducer(kafkaTemplate);
     }
 
     @Test
     void sendTaskCompletedEvent_shouldSerializeAndSend() {
         // Arrange
         Long taskId = 1L;
-        String username = "user";
-        String description = "description";
 
         // Act
-        producer.sendTaskCompletedEvent(taskId, username, description);
+        producer.sendTaskStatusEvent(taskId, TaskEventType.DONE);
 
         // Assert
-        ArgumentCaptor<String> captor = ArgumentCaptor.forClass(String.class);
+        ArgumentCaptor<TaskStatusEvent> captor = ArgumentCaptor.forClass(TaskStatusEvent.class);
         verify(kafkaTemplate).send(eq("task-events"), captor.capture());
 
-        String message = captor.getValue();
-        assertTrue(message.contains("\"taskId\":1"));
-        assertTrue(message.contains("\"username\":\"user\""));
-        assertTrue(message.contains("\"description\":\"description\""));
+        TaskStatusEvent event = captor.getValue();
+        assertEquals(1L, event.taskId());
+        assertEquals(TaskEventType.DONE, event.eventType());
     }
 }

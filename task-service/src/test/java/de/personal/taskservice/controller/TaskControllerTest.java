@@ -134,7 +134,7 @@ class TaskControllerTest {
                         .with(csrf()))
                 .andExpect(status().isNoContent());
 
-        verify(taskService).deleteTask(taskId);
+        verify(taskService).softDeleteTask(taskId);
     }
 
     @Test
@@ -168,6 +168,6 @@ class TaskControllerTest {
                         .with(csrf()))
                 .andExpect(status().isNoContent());
 
-        verify(taskService).forceDeleteTask(taskId);
+        verify(taskService).deleteTask(taskId);
     }
 }

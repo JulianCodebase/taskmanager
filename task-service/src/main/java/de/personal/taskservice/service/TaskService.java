@@ -14,7 +14,7 @@ public interface TaskService {
 
     Page<TaskResponse> getAllActiveTasks(Pageable pageable);
 
-    void deleteTask(Long id);
+    void softDeleteTask(Long id);
 
     TaskResponse restoreTask(Long id);
 
@@ -22,5 +22,5 @@ public interface TaskService {
 
     TaskResponse markTaskAsDone(Long id, String username);
 
-    void forceDeleteTask(Long id);
+    void deleteTask(Long id);
 }

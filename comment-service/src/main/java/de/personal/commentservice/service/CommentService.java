@@ -15,4 +15,6 @@ public interface CommentService {
     void deleteComment(Long commentId);
 
     CommentResponse updateComment(Long commentId, CommentRequest request);
+
+    int deleteCommentsByTaskId(Long taskId);
 }

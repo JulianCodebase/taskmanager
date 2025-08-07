@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -64,6 +65,12 @@ public class CommentServiceImpl implements CommentService {
         comment.setContent(request.content());
         Comment updated = commentRepository.save(comment);
         return CommentMapper.toCommentResponse(updated);
+    }
+
+    @Override
+    @Transactional // Executes within a transaction to ensure atomicity; rolls back on failure.
+    public int deleteCommentsByTaskId(Long taskId) {
+        return commentRepository.deleteAllByTaskId(taskId);
     }
 
     @NotNull

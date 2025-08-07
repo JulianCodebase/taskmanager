@@ -1,32 +1,25 @@
 package de.personal.commentservice;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import de.personal.commentservice.config.TestTokenGenerator;
 import de.personal.commentservice.dto.CommentRequest;
-import de.personal.commentservice.dto.TaskRequest;
-import de.personal.commentservice.dto.TaskResponse;
 import de.personal.commentservice.model.Comment;
 import de.personal.commentservice.repository.CommentRepository;
-import de.personal.common.model.UserRole;
-import org.junit.jupiter.api.BeforeEach;
+import de.personal.commentservice.service.CommentService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
-import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -47,46 +40,13 @@ class CommentServiceIntegrationTest {
     private CommentRepository commentRepository;
 
     @Autowired
-    private TestTokenGenerator tokenGenerator;
-
-    private RestTemplate restTemplate;
-    private HttpHeaders headers;
-
-    @BeforeEach
-    void setUp() {
-        String jwt = tokenGenerator.generateToken("testuser", UserRole.ROLE_USER);
-        restTemplate = new RestTemplate();
-        headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_JSON);
-        headers.setBearerAuth(jwt);
-    }
+    private CommentService commentService;
 
     @Test
     @WithMockUser(username = "testuser")
     void addComment_shouldReturnCreatedComment_interService() throws Exception {
-        // Create a task to make sure it exists
-        TaskRequest taskRequest = new TaskRequest(
-                "Sample Task",
-                "desc",
-                "MEDIUM",
-                "TODO",
-                LocalDate.now().plusDays(3));
-
-        HttpEntity<String> entity = new HttpEntity<>(
-                objectMapper.writeValueAsString(taskRequest),
-                headers
-        );
-
-        ResponseEntity<TaskResponse> response = restTemplate.postForEntity(
-                "http://localhost:8080/tasks/create",
-                entity,
-                TaskResponse.class);
-
-        TaskResponse taskResponse = response.getBody();
-        assertNotNull(taskResponse);
-
         // Add a comment to that task
-        Long taskId = taskResponse.id();
+        Long taskId = 150L;
         CommentRequest request = new CommentRequest("Integration comment", taskId);
 
         mockMvc.perform(post("/comments")
@@ -98,7 +58,7 @@ class CommentServiceIntegrationTest {
 
     @Test
     @WithMockUser(username = "testuser")
-    void addComment_shouldThrowException_whenTaskNotExists() throws Exception{
+    void addComment_shouldReturnNotFound_whenTaskNotExists() throws Exception {
         Long taskId = 0L;
 
         CommentRequest request = new CommentRequest("Comment test", taskId);
@@ -106,8 +66,7 @@ class CommentServiceIntegrationTest {
         mockMvc.perform(post("/comments")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request)))
-                .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.content").value("Comment test"));
+                .andExpect(status().isNotFound());
     }
 
     @Test
@@ -155,5 +114,23 @@ class CommentServiceIntegrationTest {
                         .content(objectMapper.writeValueAsString(updateRequest)))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content").value("Updated"));
+    }
+
+    @Test
+    void deleteCommentsByTaskId_shouldDeleteAllCommentsForTask() {
+        Long taskId = 1L;
+        List<Comment> comments = new ArrayList<>();
+        for (int i = 0; i < 5; i++){
+            Comment comment = new Comment();
+            comment.setTaskId(taskId);
+            comment.setAuthorUsername("user");
+            comment.setContent("content");
+            comments.add(comment);
+        }
+        commentRepository.saveAll(comments);
+
+        int deletedCommentsCount = commentService.deleteCommentsByTaskId(taskId);
+
+        assertEquals(5, deletedCommentsCount);
     }
 }

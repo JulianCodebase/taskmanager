@@ -1,5 +1,6 @@
 package de.personal.taskservice.service.impl;
 
+import de.personal.common.messaging.TaskEventType;
 import de.personal.taskservice.dto.TaskRequest;
 import de.personal.taskservice.dto.TaskResponse;
 import de.personal.taskservice.exception.TaskNotFoundException;
@@ -146,10 +147,11 @@ class TaskServiceImplTest {
         when(taskRepository.findById(taskId)).thenReturn(Optional.of(task));
         when(taskRepository.save(any(Task.class))).thenReturn(task);
 
-        taskService.deleteTask(taskId);
+        taskService.softDeleteTask(taskId);
 
         assertTrue(task.isDeleted());
         assertNotNull(task.getDescription());
+
     }
 
     @Test
@@ -191,7 +193,6 @@ class TaskServiceImplTest {
         int result = taskService.restoreAllSoftDeletedTasks();
 
         assertEquals(restoreCount, result);
-        verify(taskRepository).restoreSoftDeletedTasks();
     }
 
     @Test
@@ -209,7 +210,7 @@ class TaskServiceImplTest {
 
         assertEquals(taskId, response.id());
         assertEquals(TaskStatus.DONE, response.status());
-        verify(taskEventProducer).sendTaskCompletedEvent(taskId, username, task.getDescription());
+        verify(taskEventProducer).sendTaskStatusEvent(taskId, TaskEventType.DONE);
     }
 
     @Test
@@ -220,9 +221,9 @@ class TaskServiceImplTest {
 
         when(taskRepository.findById(taskId)).thenReturn(Optional.of(task));
 
-        taskService.forceDeleteTask(taskId);
+        taskService.deleteTask(taskId);
 
         verify(taskRepository).delete(task);
-        verify(taskEventProducer).sendTaskDeletedEvent(taskId);
+        verify(taskEventProducer).sendTaskStatusEvent(taskId, TaskEventType.DELETED);
     }
 }

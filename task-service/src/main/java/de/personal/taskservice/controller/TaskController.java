@@ -60,7 +60,7 @@ public class TaskController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteTask(@PathVariable Long id) {
-        taskService.deleteTask(id);
+        taskService.softDeleteTask(id);
         return ResponseEntity.noContent().build();
     }
 
@@ -83,7 +83,7 @@ public class TaskController {
     @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{id}/force")
     public ResponseEntity<Void> forceDeleteTask(@PathVariable Long id) {
-        taskService.forceDeleteTask(id);
+        taskService.deleteTask(id);
         return ResponseEntity.noContent().build();
     }
 }

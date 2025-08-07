@@ -198,4 +198,13 @@ class CommentServiceImplTest {
         assertThrows(IllegalArgumentException.class, () -> commentService.updateComment(commentId, request));
         verify(commentRepository, never()).save(any());
     }
+
+    @Test
+    void deleteCommentsByTaskId() {
+        Long taskId = 1L;
+
+        commentService.deleteCommentsByTaskId(taskId);
+
+        verify(commentRepository).deleteAllByTaskId(taskId);
+    }
 }

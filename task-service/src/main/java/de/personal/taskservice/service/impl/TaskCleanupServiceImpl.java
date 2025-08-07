@@ -1,5 +1,6 @@
 package de.personal.taskservice.service.impl;
 
+import de.personal.common.messaging.TaskEventType;
 import de.personal.taskservice.annotation.AuditLog;
 import de.personal.taskservice.messaging.TaskEventProducer;
 import de.personal.taskservice.model.Task;
@@ -30,7 +31,7 @@ public class TaskCleanupServiceImpl implements TaskCleanupService {
         taskRepository.deleteAll(tasksToDelete);
 
         // Publishes deletion event for each task
-        tasksToDelete.forEach(task -> taskEventProducer.sendTaskDeletedEvent(task.getId()));
+        tasksToDelete.forEach(task -> taskEventProducer.sendTaskStatusEvent(task.getId(), TaskEventType.DELETED));
 
         return tasksToDelete.size();
     }

@@ -4,8 +4,10 @@ import de.personal.taskservice.model.Task;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -17,8 +19,6 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
 
     Page<Task> findAllByDeletedFalse(Pageable pageable);
 
-    List<Task> findAllByDeletedTrue();
-
     /**
      * Find tasks that have been soft-deleted and whose deletedAt timestamp
      * is older than the given threshold.
@@ -29,4 +29,16 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     List<Task> findByDeletedTrueAndDeletedAtBefore(@Param("threshold") LocalDateTime threshold);
 
     Optional<Task> findByIdAndDeletedFalse(Long id);
+
+    /**
+     * Restore all tasks that were previously soft-deleted.
+     * <p>
+     * Note: This method requires an active transaction to persist changes.
+     *
+     * @return the number of tasks restored
+     */
+    @Transactional // Ensures commit to DB
+    @Modifying
+    @Query("UPDATE Task t SET t.deleted = false, t.deletedAt = NULL WHERE t.deleted = true")
+    int restoreSoftDeletedTasks();
 }

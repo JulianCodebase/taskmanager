@@ -22,5 +22,7 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
                                            @Param("after") LocalDateTime after,
                                            @Param("before") LocalDateTime before,
                                            Pageable pageable);
+
+    int deleteAllByTaskId(Long taskId);
 }
 
