@@ -14,13 +14,15 @@ The following diagram illustrates the high-level system architecture of the Task
 - A complete CI/CD pipeline is established using GitHub, Jenkins, and Docker, enabling automated builds, testing, and deployments.
   ![System Architecture](<docs/assets/System Architecture Diagram.png>)
 
+### microservices
 The TaskManager system is now split into independent Spring Boot microservices:
 - User Service – Manages user registration, authentication (JWT), and roles.
 - Task Service – Handles task creation, updates, restoration, and deletion.
 - Comment Service – Manages comments associated with tasks, ensuring data consistency via Kafka events and REST calls to Task Service.
 - Notification Service – Consumes Kafka events to trigger notifications.
 - Common Module – Holds shared DTOs, utilities, configuration classes, and messaging contracts.
-### Communication
+
+Different services communicate through: 
   - Synchronous (REST) – For example, Comment Service calls Task Service to verify task existence before adding comments.
   - Asynchronous (Kafka) – Task Service emits events (e.g., task deleted/restored) consumed by Comment Service and Notification Service.
 ## Key Features
