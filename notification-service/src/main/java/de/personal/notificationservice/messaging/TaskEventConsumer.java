@@ -1,11 +1,14 @@
 package de.personal.notificationservice.messaging;
 
+import de.personal.common.messaging.TaskEventType;
+import de.personal.common.messaging.TaskStatusEvent;
 import de.personal.notificationservice.service.impl.NotificationServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
+
+import java.util.Objects;
 
 @Component
 @Slf4j
@@ -16,12 +19,10 @@ public class TaskEventConsumer {
     /**
      * Listens to task-events topic and logs messages
      */
-    @KafkaListener(topics = "task-events", groupId = "task-manager-group")
-    public void consume(ConsumerRecord<String, String> record) {
-        String message = record.value();
-        log.info(">>> Received task event from Kafka: {}", message);
-
-        // Delegate to notification logic
-        notificationServiceImpl.notifyTaskCompleted(message);
+    @KafkaListener(topics = "${kafka-task-topic}", groupId = "${spring.kafka.consumer.group-id}")
+    public void consume(TaskStatusEvent event) {
+        if (Objects.requireNonNull(event.eventType()) == TaskEventType.DONE) {
+            notificationServiceImpl.notifyTaskCompleted(event);
+        }
     }
 }

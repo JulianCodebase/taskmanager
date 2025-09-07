@@ -1,5 +1,6 @@
 package de.personal.notificationservice.service.impl;
 
+import de.personal.common.messaging.TaskStatusEvent;
 import de.personal.notificationservice.service.NotificationService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -11,7 +12,7 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class NotificationServiceImpl implements NotificationService {
     @Override
-    public void notifyTaskCompleted(String taskMessage) {
-        log.info("Notifying user: {}", taskMessage);
+    public void notifyTaskCompleted(TaskStatusEvent taskStatusEvent) {
+        log.info("Task {} is DONE", taskStatusEvent.taskId());
     }
 }
